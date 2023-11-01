@@ -108,6 +108,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ticket/{idReferencia}', 'Ingreso\IngresoController@ticket')->where('idReferencia', '[0-9]+');
     Route::get('listarRegistroIngreso/{id}', 'Ingreso\IngresoController@listadoPorIngreso')->where('id', '[0-9]+');
 
+    #Reportes
+    Route::get('reporte/extintor', 'Reportes\ReporteController@vistaReporteExtintor')->name('viewReporteExtintor');
+    Route::get('reporte/extintor-etiqueta/{search_numero_etiqueta}', 'Reportes\ReporteController@reporteEtiquetaExtintor');
+    Route::get('reporte/cliente-extintor', 'Reportes\ReporteController@vistaReporteClienteExtintor')->name('viewReporteClienteExtintor');
+    Route::post('reporte/cliente-ordenes-servicio', 'Reportes\ReporteController@reporteClienteOrdenesServicio');
+    Route::get('reporte/orden-servicio', 'Reportes\ReporteController@vistaReporteOrdenServicio')->name('viewReporteOrdenServicio');
+    Route::post('reporte/orden', 'Reportes\ReporteController@reporteOrden');
+
     #ListadoIngreso
     Route::get('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@index')->name('listadoIngreso');
     Route::get('verListado', 'ListadoIngreso\ListadoIngresoController@verListado');
@@ -117,7 +125,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@update')->where('id', '[0-9]+');
     Route::delete('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@destroy')->where('id', '[0-9]+');
     Route::delete('ingresoListado/{id}', 'ListadoIngreso\ListadoIngresoController@eliminarIngresoListado')->where('id', '[0-9]+');
-
 
     #Ruta para combo dinamico Subcategoria
     Route::get('ingresoL/comboSubcategoria/{id}', 'ListadoIngreso\ListadoIngresoController@byCategoria');
@@ -132,6 +139,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('recarga', 'Recarga\RecargaController@store');
     Route::put('recarga/{id}', 'Recarga\RecargaController@update')->where('id', '[0-9]+');
     Route::delete('recarga/{id}', 'Recarga\RecargaController@destroy')->where('id', '[0-9]+');
+    Route::delete('recarga/eliminar-extintor-orden/{id}', 'Recarga\RecargaController@eliminarExtintorOrden')->where('id', '[0-9]+');
+
     #Listado recarga
     Route::get('infoRecarga/{id}', 'Recarga\RecargaController@informacionListadoRecarga')->where('id', '[0-9]+');
     #Observaciones

@@ -14,6 +14,6 @@ class listadoRecarga extends Model
     }
     function CambioPartesRecarga()
     {
-        return $this->hasMany(CambioParte::class, 'cambio_parte_id', 'id');
+        return $this->hasMany(CambioParte::class, 'id', 'cambio_parte_id');
     }
 }

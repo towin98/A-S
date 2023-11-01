@@ -26,9 +26,9 @@
                         <table class="table" id="example">
                             <thead>
                                 <tr class="text-left">
-                                    <th>{{ __('Referencia') }}</th>
-                                    <th>{{ __('Fecha de ingreso') }}</th>
-                                    <th>{{ __('Unidad de medida') }}</th>
+                                    <th>{{ __('Orden Servicio') }}</th>
+                                    <th>{{ __('Fecha ingreso') }}</th>
+                                    <th>{{ __('Unidad medida') }}</th>
                                     <th>{{ __('Capacidad') }}</th>
                                     <th>{{ __('Actividad') }}</th>
                                     <th>{{ __('# extintor') }}</th>

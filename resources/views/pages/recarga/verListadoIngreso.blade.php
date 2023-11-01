@@ -20,7 +20,7 @@
                             <table class="table table-striped" id="example">
                                 <thead>
                                     <tr>
-                                        <th>{{ __('Nro referencia') }}</th>
+                                        <th>{{ __('Orden Servicio') }}</th>
                                         <th>{{ __('Nro Extintores') }}</th>
                                         <th>{{ __('Fecha ingreso') }}</th>
                                         <th>{{ __('Capacidad') }}</th>
@@ -55,6 +55,24 @@
                             <h4 class="card-title">{{ __('Listado De extintores Recargados') }}</h4>
                         </div>
                     </div>
+
+                    @if (session('exito_eliminar_extintor_orden'))
+                        <div class="alert alert-success m-3" role="alert">
+                            {{ session('exito_eliminar_extintor_orden') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
+
+                    @if (session('advertencia_eliminar_extintor_orden'))
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @if (session('advertencia_eliminar_extintor_orden'))
+                                {{ session('advertencia_eliminar_extintor_orden') }}
+                            @endif
+                        </div>
+                    @endif
+
                     <div class="card-body table-responsive">
                         <table class="table table-striped" id="example">
                             <thead>
@@ -62,9 +80,12 @@
                                     <th>{{ __('Nro Tiquete anterios') }}</th>
                                     <th>{{ __('Nro Tiquete nuevo') }}</th>
                                     <th>{{ __('Nro Extintor') }}</th>
-                                    <th>{{ __('Agente') }}</th>
+                                    <th>{{ __('Capacidad') }}</th>
                                     <th>{{ __('Unidad de medida') }}</th>
+                                    <th>{{ __('SubCategoria') }}</th>
+                                    <th>{{ __('Categoria') }}</th>
                                     <th>{{ __('Actividad') }}</th>
+                                    <th>{{ __('Acciones') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -75,7 +96,20 @@
                                     <td>{{$item['nro_extintor']}}</td>
                                     <td>{{$item['cantidad_medida']}}</td>
                                     <td>{{$item['unidad_medida']}}</td>
+                                    <td>{{$item['nombre_subCategoria']}}</td>
+                                    <td>{{$item['nombre_categoria']}}</td>
                                     <td>{{$item['nombre_actividad']}}</td>
+                                    <td>
+                                        <form action="/recarga/eliminar-extintor-orden/{{$item['id'] }}" method="post">
+                                            {{ csrf_field()}}
+                                            {{ method_field('DELETE')}}
+                                            <button type="submit"
+                                                    class="btn btn-danger btn-fab btn-fab-mini btn-round mt-2"
+                                                    title="Eliminar Extintor">
+                                                <i class="material-icons" onclick="return confirm('Desea eliminar el registro?')">close</i>
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -89,15 +123,26 @@
                         <div class="card-text">
                             <h4 class="card-title">{{ __('Ingresar recarga') }}</h4>
                         </div>
-                        <div class="row">
-                            @if (session('advertencia'))
-                            <div class="alert alert-warning" role="alert">
-                                {{ session('advertencia') }}
+                        @if ($errors->any() || session('advertencia'))
+                            <div class="alert alert-danger mt-3" role="alert">
+                                @if ($errors->any())
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+
+                                @if (session('advertencia'))
+                                    {{ session('advertencia') }}
+                                @endif
+
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            @endif
+                        @endif
+                        <div class="row">
                             <div class="col">
                                 <h3 style="color: black">{{__('Etiqueta asignar ')}} {{$primerTiquete}}</h3>
                                 <!-- Button trigger modal -->
@@ -131,7 +176,7 @@
                                         <div class="form-group">
                                             <label for="nro_extintor">{{ __('N° de extintor:') }}</label>
                                             <input type="number" class="form-control" id="nro_extintor" required
-                                                value="1" name="nro_extintor">
+                                                value="1" readonly name="nro_extintor">
                                         </div>
                                     </div>
                                 </div>
@@ -153,7 +198,7 @@
                                     <div class="col">
                                         <div class="form-group">
                                             <label for="capacidad">{{ __('Unidad de medida') }}</label>
-                                            <select name="capacidadProducto" id="capacidadProducto"
+                                            <select name="capacidad_id" id="capacidadProducto"
                                                 class="form-control">
                                                 <option value="">{{__('Seleccione unidad de medida')}}</option>
                                             </select>
@@ -166,7 +211,7 @@
                                                 id="activida_recarga_id">
                                                 <option value="">---SELECCIONAR---</option>
                                                 @foreach (Actividad() as $item)
-                                                <option value="{{ $item->id }}">{{ $item->nombre_actividad }} </option>
+                                                    <option value="{{ $item->id }}">{{ $item->nombre_actividad }} </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -241,8 +286,7 @@
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
                                             <input class="form-check-input" type="radio" name="fuga_id"
-                                                value="{{$item->id}}">({{$item->abreviacion_fuga}})
-                                            {{$item->nombre_fuga}}
+                                                value="{{$item->id}}">({{$item->abreviacion_fuga}}){{$item->nombre_fuga}}
                                             <span class="circle">
                                                 <span class="check"></span>
                                             </span>

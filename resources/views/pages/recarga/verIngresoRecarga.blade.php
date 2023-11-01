@@ -29,7 +29,7 @@
                                     <th>{{ __('Fecha de entrega') }}</th>
                                     <th>{{ __('Cliente') }}</th>
                                     <th>{{ __('Colaborador') }}</th>
-                                    <th>{{ __('Nro referencia') }}</th>
+                                    <th>{{ __('Orden Servicio') }}</th>
                                     <th>{{ __('No extintores') }}</th>
                                     <th>{{ __('Estado') }}</th>
                                     <th>{{ __('Estado') }}</th>
