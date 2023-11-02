@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ListadoIngreso;
 
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListadoIngreso\ListadoIngresoCreate;
 use App\Models\Ingreso;
@@ -38,7 +39,7 @@ class ListadoIngresoController extends Controller
         $totalExtIngreso = Ingreso::where('id', $request->ingreso_id)->select('id', 'numero_total_extintor')->first();
         $totalExtIngreso = $totalExtIngreso->numero_total_extintor;
         $saveExtTotal = ListadoIngreso::where('ingreso_id', $request->ingreso_id)->sum('numero_extintor');
-        $total = (($saveExtTotal  + $numExtRecibido) - $totalExtIngreso);
+        $total = ($totalExtIngreso - ($saveExtTotal  + $numExtRecibido));
         $saveExtTotal = $numExtRecibido + $saveExtTotal;
         if ($saveExtTotal <= $totalExtIngreso) {
             $listadoIngreso = new ListadoIngreso();
@@ -50,7 +51,7 @@ class ListadoIngresoController extends Controller
 
             return back()->with('exito', 'Se guardo correctamente : ' . $total . ' restantes');
         } else {
-            return back()->with('error', 'Numero de extintores al maximo : ' . $total . ' restantes');
+            return back()->with('error', 'Número de extintores sobre pasa el máximo de extintores en la orden: ' . $total . ' restantes');
         }
     }
     public function ListadoIngreso($id)
@@ -62,10 +63,10 @@ class ListadoIngresoController extends Controller
             if ($listIngreso) {
                 return view('pages.listadoIngreso.verListadoIngreso', compact('numeroReferencia', 'listIngreso'));
             } else {
-                return back('error', 'No se encuentrar extintores registrados con este numero de referencia');
+                return back('error', 'No se encuentrar extintores registrados con esta orden de servicio.');
             }
         } catch (\Throwable $th) {
-            return back('error', 'No se encuentrar disponible en estos momentos');
+            return back('error', 'No se encuentra disponible en estos momentos.');
         }
     }
     public function exportarListadoIngreso($idIngreso)

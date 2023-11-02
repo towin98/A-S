@@ -25,11 +25,11 @@
                         <table class="table" id="example">
                             <thead>
                                 <tr class="text-left">
-                                    <th>{{ __('Referencia') }}</th>
-                                    <th>{{ __('Fecha de ingreso') }}</th>
-                                    <th>{{ __('Fecha de entrega') }}</th>
+                                    <th>{{ __('Orden Servicio') }}</th>
+                                    <th>{{ __('Fecha ingreso') }}</th>
+                                    <th>{{ __('Fecha entrega') }}</th>
                                     <th>{{ __('Colaborador A&S') }}</th>
-                                    
+
                                     <th>{{ __('No extintores') }}</th>
                                     <th>{{ __('Estado') }}</th>
                                     <th>{{ __('Evento') }}</th>
@@ -42,7 +42,7 @@
                                     <td>{{ $item->fecha_recepcion }}</td>
                                     <td>{{ $item->fecha_entrega }}</td>
                                     <td>{{ $item->Usuario->nombre}}</td>
-                                   
+
 
                                     <td>{{ $item->numero_total_extintor }}</td>
                                     <td>{{ $item->estado }}</td>

@@ -70,6 +70,31 @@
                 </div>
             </li>
 
+            <li class="nav-item {{ $activePage == 'reportes' ? ' active' : '' }}">
+                <a class="nav-link " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="material-icons">summarize</i>
+                    <p>
+                        {{__('Reportes')}}
+                        <b class="caret"></b>
+                    </p>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url('reporte/extintor') }}">
+                        <i class="material-icons">search</i>
+                        <p>{{ __('Extintor') }}</p>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url('reporte/cliente-extintor') }}">
+                        <i class="material-icons">search</i>
+                        <p>{{ __('Cliente Extintor') }}</p>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url('reporte/orden-servicio') }}">
+                        <i class="material-icons">search</i>
+                        <p>{{ __('Orden Servicio') }}</p>
+                    </a>
+                </div>
+            </li>
 
             @can('recepcionista')
             <li class="nav-item {{ $activePage == 'profile' ? ' active' : '' }}">
@@ -98,7 +123,6 @@
             </li>
             @endcan
 
-
             <li class="nav-item {{ $activePage == 'empresa_encargado' ? ' active' : '' }}">
                 <a class="nav-link " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     <i class="material-icons">business</i>
@@ -115,7 +139,6 @@
                     </a>
                 </div>
             </li>
-
 
             @can('recepcionista')
             <li class="nav-item dropdown {{ $activePage == 'categoria' ? ' active' : '' }}">

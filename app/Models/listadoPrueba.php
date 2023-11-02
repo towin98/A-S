@@ -16,4 +16,8 @@ class listadoPrueba extends Model
     {
         return $this->hasMany(Fuga::class, 'prueba_id', 'id');
     }
+    function getPrueba()
+    {
+        return $this->belongsTo(Prueba::class, 'prueba_id', 'id');
+    }
 }
