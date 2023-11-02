@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Ingreso;
 
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Models\Ingreso;
 use App\Models\ListadoIngreso;
@@ -14,6 +15,7 @@ use Mike42\Escpos\Printer;
 use Mike42\Escpos\compaj;
 use Mike42\Escpos\EscposImage;
 use App\Http\Controllers\Utilities\ImprimirTicket;
+use Exception;
 use PDF;
 
 class IngresoController extends Controller
@@ -141,7 +143,7 @@ class IngresoController extends Controller
             return $ingreso;
         else
             $ingreso = new Ingreso();
-        $ingreso->fecha_recepcion = now();
+        $ingreso->fecha_recepcion = now()->format('Y-m-d');
         $ingreso->usuario_id = $id_vendedor;
         $ingreso->numero_referencia = $ingreso->id;
         $ingreso->estado = 'recibido';
@@ -172,7 +174,10 @@ class IngresoController extends Controller
     {
         $actingreso = Ingreso::where('numero_referencia', $id)->first();
         $total = $actingreso->numero_total_extintor;
-        return view('pages.listadoIngreso.listadoIngreso', compact('id', 'total'));
+
+        // Consultando listado de ingreso para obtener extintores ingresados hasta el momento.
+        $totalExtintoresIngresados = listadoIngreso::where('ingreso_id', $actingreso->id)->sum('numero_extintor');
+        return view('pages.listadoIngreso.listadoIngreso', compact('id', 'total', 'totalExtintoresIngresados'));
     }
     public function getEstadoIngreso()
     {
@@ -185,31 +190,34 @@ class IngresoController extends Controller
 
     public function update(Request $request, $id)
     {
-
-        /** Creamos este metodo para hacer uso de el en varias situaciones */
-        if($request->numero_total_extintor <= 0)
-            return back()->with('error',"Numero de extintores no puede ser 0");
         $ingreso = Ingreso::where('id', $id)->first();
-        $numeroExtintores = $request->numero_total_extintor;
+        if (!$ingreso) {
+            return back()->with('validacion_datos','No existe el ingreso, por favor intente de nuevo.');
+        }
+
+        $request->merge([
+            'numero_referencia' => $ingreso->id,
+            'estado'            => 'Produccion'
+        ]);
+
+        try {
+            $validador = Validator::make($request->all(), Ingreso::$rules, Ingreso::$messagesRules);
+            if ($validador->fails()) {
+                // El validador ha encontrado errores
+                $errores = $validador->errors();
+                return back()->withErrors($errores);
+            }
+        } catch (\Throwable $th) {
+            return back()->with('validacion_datos', 'No se pudo crear el ingreso: '. $th);
+        }
+
         $id = $ingreso->id;
         if ($ingreso) {
-            $ingreso->fecha_entrega = $request->input('fecha_entrega');
-            $ingreso->encargado_id  = $request->input('encargado_id');
-            $ingreso->numero_referencia = $ingreso->id;
+            $ingreso->fecha_entrega         = $request->input('fecha_entrega');
+            $ingreso->encargado_id          = $request->input('encargado_id');
+            $ingreso->numero_referencia     = $request->numero_referencia;
             $ingreso->numero_total_extintor = $request->input('numero_total_extintor');
-            $total = $request->input('numero_total_extintor');
-            $ingreso->estado = 'Produccion';
-            /**
-             * Hacemos llamado al metodo donde nos indica la etiqueta anterior
-             * y hace la suma de los extintores que estamos ingresando para generar las etiquetas
-             * pertinentes
-             */
-            $numeroEtiqueta = NumeroTiquete::select('id', 'numero_tiquete')->get()->last();
-            // return [
-            //     'etiquetaDisponible' => $numeroEtiqueta->numero_tiquete,
-            //     'numeroExtintoresIngreso' => $numeroExtintores,
-            //     'nuevaEtiqueta' => (($numeroEtiqueta->numero_tiquete) + $numeroExtintores)
-            // ];
+            $ingreso->estado                = $request->estado;
 
             // Guardamos en base de datos
             $ingreso->save();
@@ -226,10 +234,11 @@ class IngresoController extends Controller
 
             $actingreso = Ingreso::where('id', $id)->first();
             for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
-                $nuevaEtiqueta = new NumeroTiquete();
-                $nuevaEtiqueta->numero_tiquete = $numeroEtiqueta->numero_tiquete + $i;
-                $nuevaEtiqueta->ingreso_id = $actingreso->id;
-                $nuevaEtiqueta->save();
+
+                NumeroTiquete::create([
+                    "numero_tiquete" => ($numeroEtiqueta?->numero_tiquete + 0) + $i,
+                    "ingreso_id"     => $actingreso->id
+                ]);
             }
             if ($actingreso) {
                 $actingreso->estado = 'Produccion';
@@ -238,8 +247,8 @@ class IngresoController extends Controller
             } else {
                 return back();
             }
-        } catch (\Throwable $th) {
-            return back();
+        } catch (Exception $th) {
+            return $th;
         }
     }
     public function actualizarI(Request $request, $id)
@@ -269,11 +278,16 @@ class IngresoController extends Controller
         /** Creamos este metodo para hacer uso de el en varias situaciones */
         try {
             $ingreso = Ingreso::where('id', $id)->first();
-            $id = $ingreso->id;
             if ($ingreso) {
-                $ingreso->fecha_entrega = $ingreso->fecha_entrega;
-                $ingreso->encargado_id  = $ingreso->encargado_id;
-                $ingreso->numero_referencia = $ingreso->id;
+
+                /**
+                 * Eliminando listado de ingreso porque se va a cambiar el número total de extintores a ingresar
+                 */
+                listadoIngreso::where('ingreso_id', $ingreso->id)->delete();
+
+                $ingreso->fecha_entrega         = $ingreso->fecha_entrega;
+                $ingreso->encargado_id          = $ingreso->encargado_id;
+                $ingreso->numero_referencia     = $ingreso->id;
                 $ingreso->numero_total_extintor = $request->numero_total_extintor;
                 $ingreso->estado = 'Produccion';
                 // Guardamos en base de datos
@@ -289,5 +303,9 @@ class IngresoController extends Controller
         $generarCodigo = NumeroTiquete::select('*')->where('ingreso_id', $id)->get();
         // return $generarCodigo;
         return view('barCode', compact('generarCodigo'));
+    }
+
+    public function vistaReporteExtintor(){
+        return view('pages.reportes.reporteExtintor');
     }
 }

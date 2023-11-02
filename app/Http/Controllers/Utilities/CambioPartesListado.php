@@ -8,11 +8,13 @@ trait CambioPartesListado
 {
     public function saveListChangeParts($id, $listadoPartes)
     {
-        foreach ($listadoPartes as $key => $value) {
-            $nuevoListado =  new listadoRecarga();
-            $nuevoListado->recarga_id = $id;
-            $nuevoListado->cambio_parte_id = $value;
-            $nuevoListado->save();
+        if (isset($listadoPartes)) {
+            foreach ($listadoPartes as $key => $value) {
+                $nuevoListado =  new listadoRecarga();
+                $nuevoListado->recarga_id = $id;
+                $nuevoListado->cambio_parte_id = $value;
+                $nuevoListado->save();
+            }
         }
     }
     public function ListadoPartes($id)

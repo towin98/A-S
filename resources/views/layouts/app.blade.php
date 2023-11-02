@@ -27,9 +27,42 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css">
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+
+    {{-- Estilos para loading --}}
+    <style>
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body class="{{ $class ?? '' }}" style="font-size: 1rem">
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
     @auth()
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
@@ -39,7 +72,6 @@
     @guest()
     @include('layouts.page_templates.guest')
     @endguest
-
 
     <!--   Core JS Files   -->
     <script src="{{ asset('material') }}/js/core/jquery.min.js"></script>
@@ -92,34 +124,145 @@
 
     <script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            var loadingOverlay = document.getElementById("loading-overlay");
+            loadingOverlay.style.display = "none";
+        });
         $(document).ready(function() {
-                    $('#example').DataTable( {
-                    "language": {
+            $('#example').DataTable({
+                "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
-                    },
-                    dom: 'Bfrtip',
+                },
+                dom: 'Bfrtip',
 
-                    buttons: [ {
-                    extend:    'excelHtml5',
-				    text:      '<i class="fas fa-file-excel" style="font-size:15px;"></i> ',
-				    titleAttr: 'Exportar a Excel',
-				    className: 'btn btn-success'
+                buttons: [{
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel" style="font-size:15px;"></i> ',
+                        titleAttr: 'Exportar a Excel',
+                        className: 'btn btn-success',
+
+                        customize: function (xlsx) {
+
+                            switch (document.getElementById('id_origen')?.textContent) {
+                                case 'REPORTE_EXTINTOR':
+                                case 'REPORTE_CLIENTE_EXTINTOR':
+                                    // Obtener la hoja de trabajo activa
+                                    let sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                                    let sheetData = sheet.childNodes[0].childNodes[1];
+                                    let numeroFilas = sheetData.childNodes.length;
+                                    const title = "<row  r='1'>" + sheet.childNodes[0].childNodes[1].childNodes[0].innerHTML + "</row>";
+
+                                    let contenido = "";
+                                    if (document.getElementById('id_origen')?.textContent == "REPORTE_CLIENTE_EXTINTOR") {
+
+                                        const rangeDates = "<row  r='2'>" +
+                                                "<c t='inlineStr' r='A2' s='2'><is><t xml:space='preserve'>Fecha de Reporte:</t></is></c>" +
+                                                "<c t='inlineStr' r='B2'      ><is><t xml:space='preserve'>"+document.getElementById("id_fecha_del").value+" Al "+document.getElementById("id_fecha_hasta").value+"</t></is></c>" +
+                                        "</row>";
+                                        contenido += rangeDates;
+                                    }
+
+                                    const propietario = "<row  r='3'>" +
+                                                "<c t='inlineStr' r='A3' s='2'><is><t xml:space='preserve'>Propietario:</t></is></c>" +
+                                                "<c t='inlineStr' r='B3'      ><is><t xml:space='preserve'>"+document.getElementById("id_propietario").textContent+"</t></is></c>" +
+                                        "</row>";
+                                    contenido += propietario;
+
+                                    let contadorColocarRow = 4;
+
+                                    for (let row = 2; row <= numeroFilas; row++) {
+
+                                        // Agregando campo en la fila del excel
+                                        let targetElement = sheet.childNodes[0].childNodes[1].childNodes[(row-1)];
+
+                                        targetElement = filaConvertirPosicion(targetElement, contadorColocarRow);
+
+                                        contenido += "<row r='"+contadorColocarRow+"'>" + targetElement.innerHTML + "</row>";
+                                        contadorColocarRow ++;
+                                    }
+
+                                    // Sobreescribiendo data a imprimir en el excel
+                                    sheet.childNodes[0].childNodes[1].innerHTML = title + contenido;
+                                    break;
+                            }
+                        }
 
                     },
                     {
-                    extend:    'print',
-				    text:      '<i class="fa fa-print"></i> ',
-				    titleAttr: 'Imprimir',
-				    className: 'btn btn-info'
-                    } ],
-                    columnDefs: [
-                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> ',
+                        titleAttr: 'Imprimir',
+                        className: 'btn btn-info',
+                        customize: function (win) {
+
+                            switch (document.getElementById('id_origen')?.textContent) {
+                                case 'REPORTE_EXTINTOR':
+                                case 'REPORTE_CLIENTE_EXTINTOR':
+
+                                    // Agregar el contenido personalizado después del título de la página
+                                    let body = $(win.document.body);
+                                    let title = body.find('h1'); // Cambia 'h1' al selector que corresponda al título de tu página
+
+                                    if (document.getElementById('id_origen')?.textContent == "REPORTE_CLIENTE_EXTINTOR") {
+                                        // Agrengando rango
+                                        let customContent = document.createElement('div');
+                                        customContent.style.textAlign    = 'left';
+                                        customContent.style.marginBottom = '20px';
+
+                                        // Crear un elemento strong para el texto "Fecha de Reporte"
+                                        let strongElement = document.createElement('strong');
+                                        strongElement.textContent = 'Fecha de Reporte: ';
+
+                                        // Agregar el elemento strong al contenido personalizado
+                                        customContent.appendChild(strongElement);
+                                        customContent.innerHTML += document.getElementById("id_fecha_del").value+" Al "+document.getElementById("id_fecha_hasta").value;
+
+                                        title.after(customContent);
+                                    }
+
+                                    // Crear un nuevo elemento div para el contenido personalizado
+                                    let customContent = document.createElement('div');
+                                    customContent.style.textAlign    = 'left';
+                                    customContent.style.marginBottom = '20px';
+
+                                    // Crear un elemento strong para el texto "Propietario"
+                                    let strongElement = document.createElement('strong');
+                                    strongElement.textContent = 'Propietario: ';
+
+                                    // Agregar el elemento strong al contenido personalizado
+                                    customContent.appendChild(strongElement);
+                                    customContent.innerHTML += document.getElementById("id_propietario").textContent;
+
+                                    title.after(customContent);
+                                break;
+                            }
+
+                        }
+                    }
+                ],
+                columnDefs: [{
                     targets: ['_all'],
                     className: 'mdc-data-table__cell'
-                    }
-                    ]
-                    } );
-                    } );
+                }]
+            });
+        });
+
+        function filaConvertirPosicion(targetElement, spaceRowCurrent){
+
+            const spaceEntryTitleTable = 2;
+
+            for (let i = 0; i < targetElement.childNodes.length; i++) {
+                let childNode = targetElement.childNodes[i];
+
+                if (childNode.nodeName === "c") {
+                    let valor = childNode.getAttribute("r");
+                    childNode.setAttribute('r', valor.replace((spaceRowCurrent - spaceEntryTitleTable), spaceRowCurrent));
+                }
+            }
+
+            return targetElement;
+        }
     </script>
 </body>
 

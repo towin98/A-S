@@ -8,7 +8,7 @@ trait FugaListado
 {
     public function saveLeakagelist($id, $listadoFuga)
     {
-        if ($listadoFuga) {
+        if (isset($listadoFuga)) {
             foreach ($listadoFuga as $key => $value) {
                 $nuevoListadoFuga =  new listadoPrueba();
                 $nuevoListadoFuga->recarga_id = $id;
