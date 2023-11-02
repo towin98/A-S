@@ -184,16 +184,16 @@ class ReporteController extends Controller
             }
         }
 
-        $agente = $recarga?->UnidadMedida?->SubCategoria?->nombre_subCategoria."-".$recarga?->UnidadMedida?->SubCategoria?->categoria?->nombre_categoria;
+        $agente = ($recarga->UnidadMedida->SubCategoria->nombre_subCategoria ?? '') . "-" . ($recarga->UnidadMedida->SubCategoria->categoria->nombre_categoria ?? '');
 
         $arrInfoEtiquetas = [
             'nro_tiquete_anterior'  => $recarga->nro_tiquete_anterior,
             'nro_tiquete_nuevo'     => $recarga->nro_tiquete_nuevo,
             'ingreso_recarga_id'    => $recarga->ingreso_recarga_id,
             'agente'                => $agente,
-            'capacidad_producto'    => $recarga?->UnidadMedida?->cantidad_medida,
-            'unidad_medida'         => $recarga?->UnidadMedida?->unidad_medida,
-            'nombre_actividad'      => $recarga?->RecargaActividad[0]?->nombre_actividad,
+            'capacidad_producto'    => $recarga->UnidadMedida->cantidad_medida ?? '',
+            'unidad_medida'         => $recarga->UnidadMedida->unidad_medida  ?? '',
+            'nombre_actividad'      => $recarga->RecargaActividad[0]->nombre_actividad ?? '',
 
             // Cambio de partes del extintor
             'parte_1'               => array_key_exists(1, $arrCambioPartes) ? $arrCambioPartes[1] : '',
@@ -293,7 +293,7 @@ class ReporteController extends Controller
             }
             foreach ($ingresoCliente->Ingreso_Recarga as $recarga) {
 
-                $agente = $recarga->UnidadMedida?->SubCategoria?->nombre_subCategoria."-".$recarga->UnidadMedida?->SubCategoria?->categoria?->nombre_categoria;
+                $agente = ($recarga->UnidadMedida->SubCategoria->nombre_subCategoria ?? '') ."-". ($recarga->UnidadMedida->SubCategoria->categoria->nombre_categoria ?? '');
 
                 $total = 1;
                 if (isset($arrData[$ingresoCliente->numero_referencia][$recarga->capacidad_id])) {
@@ -303,7 +303,7 @@ class ReporteController extends Controller
                 $arrData[$ingresoCliente->numero_referencia][$recarga->capacidad_id] = [
                     'orden_servicio'        => $ingresoCliente->numero_referencia,
                     'agente'                => $agente,
-                    'capacidad_producto'    => $recarga->UnidadMedida?->cantidad_medida,
+                    'capacidad_producto'    => $recarga->UnidadMedida->cantidad_medida ?? '',
                     "total"                 => $total,
                     'color'                 => $color
                 ];
@@ -368,7 +368,7 @@ class ReporteController extends Controller
 
                 foreach ($ingreso->Ingreso_Recarga as $recarga) {
 
-                    $agente = $recarga->UnidadMedida?->SubCategoria?->nombre_subCategoria."-".$recarga->UnidadMedida?->SubCategoria?->categoria?->nombre_categoria;
+                    $agente = ($recarga->UnidadMedida->SubCategoria->nombre_subCategoria ?? '')."-". ($recarga->UnidadMedida->SubCategoria->categoria->nombre_categoria ?? '');
 
                     $total = 1;
                     if (isset($arrData['extintores'][$recarga->capacidad_id])) {
@@ -377,8 +377,8 @@ class ReporteController extends Controller
 
                     $arrData['extintores'][$recarga->capacidad_id] = [
                         'agente'                => $agente,
-                        'capacidad_producto'    => $recarga->UnidadMedida?->cantidad_medida,
-                        'unidad_medida'         => $recarga->UnidadMedida?->unidad_medida,
+                        'capacidad_producto'    => $recarga->UnidadMedida->cantidad_medida ?? '',
+                        'unidad_medida'         => $recarga->UnidadMedida->unidad_medida ?? '',
                         "total"                 => $total
                     ];
                 }

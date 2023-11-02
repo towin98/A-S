@@ -236,7 +236,7 @@ class IngresoController extends Controller
             for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
 
                 NumeroTiquete::create([
-                    "numero_tiquete" => ($numeroEtiqueta?->numero_tiquete + 0) + $i,
+                    "numero_tiquete" => (($numeroEtiqueta->numero_tiquete ?? 0)  + 0) + $i,
                     "ingreso_id"     => $actingreso->id
                 ]);
             }
