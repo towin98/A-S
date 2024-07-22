@@ -11,6 +11,31 @@ class Ingreso extends Model
     protected $table = 'ingresos';
     protected $fillable = ['fecha_recepcion', 'fecha_entrega',  'encargado_id', 'usuario_id', 'numero_referencia','numero_total_extintor', 'estado'];
 
+    static $rules = [
+        'fecha_recepcion'           => 'required|date_format:Y-m-d',
+        'fecha_entrega'             => 'required|date_format:Y-m-d',
+        'encargado_id'              => 'required|numeric',
+        'usuario_id'                => 'nullable|numeric',
+        'numero_referencia'         => 'required|numeric',
+        'numero_total_extintor'     => 'required|numeric|min:1',
+        'estado'                    => 'required|string'
+    ];
+
+    static $messagesRules = [
+        'fecha_recepcion.required'      => 'La fecha de ingreso es requerida',
+        'fecha_recepcion.date_format'   => 'La fecha de ingreso debe cumplir el formato Y-m-d',
+        'fecha_entrega.required'        => 'La fecha de entrega es requerida',
+        'fecha_recepcion.date_format'   => 'La fecha de entrega debe cumplir el formato Y-m-d',
+        'encargado_id.required'         => 'El cliente es requerido.',
+        'encargado_id.numeric'          => 'El cliente debe ser númerico.',
+        'numero_referencia.required'    => 'El número de referencia es requerido.',
+        'numero_referencia.numeric'     => 'El número de referencia debe ser númerico.',
+        'numero_total_extintor.required'=> 'El número total de extintores es requerido.',
+        'numero_total_extintor.min'     => 'El número total de extintores debe ser mayor a 0.',
+        'numero_total_extintor.numeric' => 'El número total de extintores debe ser númerico.',
+        'estado.required'               => 'El estado es requerido.'
+    ];
+
     #Relaciones con demas tablas
     public function Usuario()
     {

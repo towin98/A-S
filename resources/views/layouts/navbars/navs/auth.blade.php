@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top " style="font-size: 1.5rem">
+<nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top" style="font-size: 1.5rem">
     <div class="container-fluid">
         <div class="navbar-wrapper">
             <a class="navbar-brand" href="#">{{__('A&S del Sur')}}</a>

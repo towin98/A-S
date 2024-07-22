@@ -19,8 +19,29 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="container">
+                        <div class="alert alert-primary mt-2" role="alert">
+                            {{ "Numero de extintores ingresados: ".$totalExtintoresIngresados." de ".$total }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {{-- Mostrando errores de formulario --}}
+                        @if ($errors->any())
+                            <div class="alert alert-danger mt-3" role="alert">
+                                @if ($errors->any())
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
                         @if (session('exito'))
-                        <div class="alert alert-success mt-5" role="alert">
+                        <div class="alert alert-success mt-1" role="alert">
                             {{ session('exito') }}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -28,7 +49,7 @@
                         </div>
                         @endif
                         @if (session('error'))
-                        <div class="alert alert-danger mt-5" role="alert">
+                        <div class="alert alert-danger mt-1" role="alert">
                             {{ session('error') }}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -36,7 +57,7 @@
                         </div>
                         @endif
                         <script src="{{ asset('js/combo/comboDinamico.js') }}"></script>
-                        <div class="card mt-5">
+                        <div class="card mt-2">
                             <div class="card-header card-header-text card-header-warning">
                                 <div class="card-text">
                                     <h4 class="card-title">{{ __('Registrar Listado De Ingreso para') }}</h4>
@@ -86,18 +107,19 @@
                                         <label for="numero_extintor">{{ __('Numero De Extintores:') }}</label>
                                         <input type="number" class="form-control" id="numero_extintor" required name="numero_extintor">
                                     </div>
-                                    <button id="enviar" class="btn btn-warning">{{ __('Enviar') }}</button>
-                                 </form>
-                                 <div>
-                                     <div class="row">
-                                         <form method="POST" action="/totalExt/{{$id}}" style="margin-top: 40px;" enctype="/multipart/form-data">
+                                    <button id="enviar" class="btn btn-warning" {{ $totalExtintoresIngresados == $total ? 'disabled' : '' }}>{{ __('Enviar') }}</button>
+                                </form>
+                                <div>
+                                    <div class="row">
+                                        <form method="POST" action="/totalExt/{{$id}}" style="margin-top: 40px;" enctype="/multipart/form-data">
                                             {{ csrf_field()}}
                                             {{ method_field('PUT')}}
                                             <div class="col">
-                                                <h3 class="mt-2">{{__('Numero total de extintores')}} <input type="number" name="numero_total_extintor" id="numero_total_extintor" value="{{$total}}"></h3>
-
+                                                <h3 class="mt-2 mt-0">{{__('Numero total de extintores: ')}} <input type="number" name="numero_total_extintor" style="width: 100px;" id="numero_total_extintor" value="{{$total}}"></h3>
+                                                <small>Enter en el campo para actualizar el número de extintores si quiere cambiar.</small> <br>
+                                                <small class="text-danger">Puede cambiar el total de extintores de la orden, pero deberá ingresar nuevamente el registro del total de extintores</small>
                                             </div>
-                                         </form>
+                                        </form>
 
                                         <div class="col">
 
@@ -107,7 +129,7 @@
                                                 <a href="{{ url('listIngreso/'.$id) }}"><button id="enviar" class="btn btn-danger"
                                                         style="float: right">{{ __('Listado ingreso') }}</button></a>
                                         </div>
-                                     </div>
+                                    </div>
                                     </div>
                                 </div>
                         </div>

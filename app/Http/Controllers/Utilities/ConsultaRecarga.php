@@ -44,11 +44,15 @@ trait ConsultaRecarga
     }
     public function listadoRecarga($id)
     {
-        return Recarga::select('recargas.nro_tiquete_anterior', 'recargas.nro_tiquete_nuevo','nro_extintor',
-                                'actividades.nombre_actividad', 'unidades_medida.cantidad_medida','unidades_medida.unidad_medida')
+        return Recarga::select('recargas.id', 'recargas.nro_tiquete_anterior', 'recargas.nro_tiquete_nuevo','nro_extintor',
+                                'actividades.nombre_actividad', 'unidades_medida.cantidad_medida','unidades_medida.unidad_medida',
+                                'subcategorias.nombre_subCategoria',
+                                'categorias.nombre_categoria')
         ->where('ingreso_recarga_id', $id)
         ->join('actividades', 'recargas.activida_recarga_id', '=', 'actividades.id')
         ->join('unidades_medida', 'recargas.capacidad_id', '=', 'unidades_medida.id')
+        ->join('subcategorias', 'unidades_medida.sub_categoria_id', '=', 'subcategorias.id')
+        ->join('categorias', 'subcategorias.categoria_id', '=', 'categorias.id')
         ->get();
 
         /* return Recarga::where('ingreso_recarga_id', $id)

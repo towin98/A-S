@@ -22,11 +22,28 @@
                     window.alert('{{ session('exito') }}');
                 </script>
                 @endif
-                @if (session('error'))
+                @if (session('validacion_datos'))
                 <div class="alert alert-danger" role="alert">
-                    {{ session('error') }}
+                    {{ session('validacion_datos') }}
                 </div>
                 @endif
+
+                {{-- Mostrando errores de formulario --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger mt-3" role="alert">
+                        @if ($errors->any())
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
                 <div class="card">
                     <div class="card-header card-header-text card-header-warning">
                         <div class="card-text">
@@ -71,7 +88,7 @@
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="encargado">{{__('Cliente')}} <span style="color: red">*</span></label>
-                                    <select required id="encargado_id" name="encargado_id"
+                                    <select id="encargado" name="encargado_id"
                                         class=" form-control chosen-select">
                                         <option value="">Seleccionar</option>
                                         @foreach(Encargado() as $item)
