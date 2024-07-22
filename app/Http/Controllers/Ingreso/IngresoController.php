@@ -143,11 +143,11 @@ class IngresoController extends Controller
             return $ingreso;
         else
             $ingreso = new Ingreso();
-        $ingreso->fecha_recepcion = now()->format('Y-m-d');
-        $ingreso->usuario_id = $id_vendedor;
-        $ingreso->numero_referencia = $ingreso->id;
-        $ingreso->estado = 'recibido';
-        $ingreso->save();
+            $ingreso->fecha_recepcion = now()->format('Y-m-d');
+            $ingreso->usuario_id = $id_vendedor;
+            $ingreso->numero_referencia = $ingreso->id;
+            $ingreso->estado = 'recibido';
+            $ingreso->save();
 
         return $ingreso;
     }
@@ -236,7 +236,7 @@ class IngresoController extends Controller
             for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
 
                 NumeroTiquete::create([
-                    "numero_tiquete" => ($numeroEtiqueta?->numero_tiquete + 0) + $i,
+                    "numero_tiquete" => (($numeroEtiqueta->numero_tiquete ?? 0)  + 0) + $i,
                     "ingreso_id"     => $actingreso->id
                 ]);
             }
