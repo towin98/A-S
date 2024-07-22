@@ -143,11 +143,11 @@ class IngresoController extends Controller
             return $ingreso;
         else
             $ingreso = new Ingreso();
-        $ingreso->fecha_recepcion = now()->format('Y-m-d');
-        $ingreso->usuario_id = $id_vendedor;
-        $ingreso->numero_referencia = $ingreso->id;
-        $ingreso->estado = 'recibido';
-        $ingreso->save();
+            $ingreso->fecha_recepcion = now()->format('Y-m-d');
+            $ingreso->usuario_id = $id_vendedor;
+            $ingreso->numero_referencia = $ingreso->id;
+            $ingreso->estado = 'recibido';
+            $ingreso->save();
 
         return $ingreso;
     }
