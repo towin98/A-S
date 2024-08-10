@@ -136,6 +136,7 @@ Route::group(['middleware' => 'auth'], function () {
     #Recargas
     Route::get('recarga', 'Recarga\RecargaController@index')->name('recarga');
     Route::get('recarga/{id}', 'Recarga\RecargaController@setRecargaListado');
+    Route::get('recarga/buscar-etiqueta-anterior/{etiquetaAnterior}', 'Recarga\RecargaController@searchEtiquetaAnterior');
     Route::post('recarga', 'Recarga\RecargaController@store');
     Route::put('recarga/{id}', 'Recarga\RecargaController@update')->where('id', '[0-9]+');
     Route::delete('recarga/{id}', 'Recarga\RecargaController@destroy')->where('id', '[0-9]+');

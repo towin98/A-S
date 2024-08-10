@@ -162,15 +162,17 @@
                                         <div class="col">
                                             <div class="form-group">
                                                 <label for="nro_tiquete_anterior">{{ __('N° tiquete anterior:') }}</label>
-                                                <input type="text" class="form-control" id="nro_tiquete_anterior"
-                                                    name="nro_tiquete_anterior">
+                                                <input type="number" class="form-control" id="nro_tiquete_anterior"
+                                                    name="nro_tiquete_anterior" onkeydown="preventEnter(event)"
+                                                    onkeyup="readCodeAnterior(event)">
                                             </div>
                                         </div>
                                         <div class="col">
                                             <div class="form-group">
                                                 <label for="nro_tiquete_nuevo">{{ __('N° tiquete nuevo:') }}</label>
-                                                <input type="text" class="form-control" id="nro_tiquete_nuevo" required
-                                                    value="{{ $primerTiquete }}" name="nro_tiquete_nuevo">
+                                                <input type="number" class="form-control" id="nro_tiquete_nuevo" required
+                                                    value="{{ $primerTiquete }}" name="nro_tiquete_nuevo"
+                                                    onkeydown="preventEnter(event)">
                                             </div>
                                         </div>
 
@@ -202,7 +204,8 @@
                                             <div class="form-group">
                                                 <label for="capacidad">{{ __('Unidad de medida') }}</label>
                                                 <select name="capacidad_id" id="capacidadProducto" class="form-control">
-                                                    <option value="">{{ __('Seleccione unidad de medida') }}</option>
+                                                    <option value="">{{ __('---Seleccione unidad de medida---') }}
+                                                    </option>
                                                 </select>
                                             </div>
                                         </div>
@@ -302,7 +305,7 @@
                                         <label for="observacion">{{ __('Observación:') }}</label>
                                         <input type="text" class="form-control" id="observacion" name="observacion">
                                     </div>
-                                    <button class="btn btn-warning">{{ __('Enviar') }}</button>
+                                    <button type="submit" class="btn btn-warning">{{ __('Enviar') }}</button>
 
                                 </form>
                                 {{-- <a href="{{ url('infoRecarga/'.$id) }}">
@@ -359,7 +362,8 @@
                 var categoria = $(this).val();
                 $.get('getUnidad/' + categoria, function(data) {
                     //esta el la peticion get, la cual se divide en tres partes. ruta,variables y funcion
-                    var producto_select = '<option value="">Seleccione Porducto</option>'
+                    var producto_select =
+                        '<option value="">---Seleccione unidad de medida---</option>'
                     for (var i = 0; i < data.length; i++)
                         producto_select += '<option value="' + data[i].id + '">' + data[i]
                         .cantidad_medida + '</option>';
@@ -369,5 +373,75 @@
                 });
             });
         });
+
+        function preventEnter(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+
+        let typingTimer;
+        const typingInterval = 1500;
+
+        function readCodeAnterior(event) {
+            document.getElementById("loading-overlay").style.display = "flex";
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+
+                if (event.target.value != '') {
+                    const etiquetaAnterior = event.target.value;
+                    const myHeader = new Headers({
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                            "content"
+                        ),
+                        'Content-Type': 'application/json'
+                    });
+
+                    fetch(`/recarga/buscar-etiqueta-anterior/${etiquetaAnterior}`, {
+                            method: "GET",
+                            headers: myHeader
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                return response.json().then(errorData => {
+                                    // convirtiendo la respuesta a un string.
+                                    throw new Error(JSON.stringify(errorData));
+                                });
+                            }
+                        })
+                        .then(data => {
+                            const datos = data.data;
+                            if (datos) {
+                                $('#agente').val(datos?.unidad_medida
+                                ?.sub_categoria_id); // Selecciona la opción con el valor "2"
+                                $("#agente").trigger("change"); // Disparando change
+                                setTimeout(() => {
+                                    document.getElementById("capacidadProducto").value = datos?.unidad_medida?.id;
+                                    document.getElementById("loading-overlay").style.display = "none";
+                                }, 500);
+                            } else {
+                                alert("No se encontraron resultado.");
+                                document.getElementById("agente").value = "";
+                                let producto_select =
+                                    '<option value="">---Seleccione unidad de medida---</option>';
+                                $("#capacidadProducto").html(producto_select);
+                                document.getElementById("nro_tiquete_anterior").value = "";
+                                document.getElementById("loading-overlay").style.display = "none";
+                            }
+                        })
+                        .catch(error => {
+                            const errorData = JSON.parse(error.message);
+                            // let errores = errorData.message + ":\n\n";
+                            console.log(errorData);
+                            loadingOverlay = "none";
+                        });
+                }
+
+            }, typingInterval);
+        }
     </script>
 @endsection
