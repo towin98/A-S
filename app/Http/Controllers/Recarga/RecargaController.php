@@ -49,6 +49,36 @@ class RecargaController extends Controller
         $primerTiquete = $primerTiquete->numero_tiquete;
         return view('pages.recarga.verListadoIngreso', compact('datos', 'id', 'clienteS', 'primerTiquete', 'listadoRecarga'));
     }
+
+    /**
+      * Metodo que busca agente y la unidad de medida de extintor por etiqueta anterior si exite.
+      *
+      * @param [type] $etiquetaAnterior Extintor
+      * @return JsonResponse
+      */
+    public function searchEtiquetaAnterior($etiquetaAnterior){
+        try {
+            $data = Recarga::select([
+                    'id',
+                    'capacidad_id'
+                ])
+                ->with('UnidadMedida')
+                ->where('nro_tiquete_nuevo', $etiquetaAnterior)
+                ->first();
+
+            return response()->json([
+                "data" => $data
+            ],200);
+        } catch (Exception $ex) {
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => [
+                    'No se encontraron registros'
+                ]
+            ], 404);
+        }
+    }
+
     public function store(Request $request)
     {
         /**
@@ -123,12 +153,14 @@ class RecargaController extends Controller
             return back()->with('advertencia', 'No se pudo crear el registro: '. $e);
         }
     }
+
     public function getUnidad($id)
     {
         return UnidadMedida::select('unidades_medida.id', 'unidades_medida.cantidad_medida')
             ->join('subcategorias', 'unidades_medida.sub_categoria_id', '=', 'subcategorias.id')
             ->where('unidades_medida.sub_categoria_id', '=', $id)->get();
     }
+
     private function etiqueta($idRecarga, $numeroEtiqueta, $ingresoRecargaId = null)
     {
         $actualizarEtiqueta = NumeroTiquete::where('numero_tiquete', $numeroEtiqueta)->whereNull('recarga_id')->first();
@@ -143,6 +175,7 @@ class RecargaController extends Controller
             $actualizarEtiqueta->update();
         }
     }
+
     /**Para obtener la informacion de la recargas que pertenecen a un ingreso */
     public function informacionListadoRecarga($id)
     {
