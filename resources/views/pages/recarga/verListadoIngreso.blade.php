@@ -386,10 +386,9 @@
         const typingInterval = 1500;
 
         function readCodeAnterior(event) {
-            document.getElementById("loading-overlay").style.display = "flex";
             clearTimeout(typingTimer);
             typingTimer = setTimeout(() => {
-
+                document.getElementById("loading-overlay").style.display = "flex";
                 if (event.target.value != '') {
                     const etiquetaAnterior = event.target.value;
                     const myHeader = new Headers({
