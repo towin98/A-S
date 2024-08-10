@@ -98,9 +98,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     #Ingreso
     Route::get('ingreso/{id}', 'Ingreso\IngresoController@index')->name('ingreso');
+    Route::put('ingresoL/{id}', 'Ingreso\IngresoController@update')->where('id', '[0-9]+');
     Route::get('listIngreso', 'Ingreso\IngresoController@getEstadoIngreso')->name('listIngreso');
     Route::put('ingreso/{id}', 'Ingreso\IngresoController@actualizarI')->where('id', '[0-9]+');
-    Route::put('ingresoL/{id}', 'Ingreso\IngresoController@update')->where('id', '[0-9]+');
     Route::put('totalExt/{id}', 'Ingreso\IngresoController@updateTotalExtintor')->where('id', '[0-9]+');
     Route::get('ingresoL/{id}', 'Ingreso\IngresoController@listadoIngreso')->where('id', '[0-9]+');
     Route::get('ingresoact/{id}', 'Ingreso\IngresoController@cambioEstado')->where('id', '[0-9]+');

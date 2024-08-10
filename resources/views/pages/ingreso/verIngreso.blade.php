@@ -26,11 +26,12 @@
                             <thead>
                                 <tr class="text-left">
                                     <th>{{ __('Orden Servicio') }}</th>
+                                    <th>{{ __('Cliente') }}</th>
                                     <th>{{ __('Fecha ingreso') }}</th>
                                     <th>{{ __('Fecha entrega') }}</th>
                                     <th>{{ __('Colaborador A&S') }}</th>
 
-                                    <th>{{ __('No extintores') }}</th>
+                                    <th>{{ __('Cant.') }}</th>
                                     <th>{{ __('Estado') }}</th>
                                     <th>{{ __('Evento') }}</th>
                                 </tr>
@@ -39,10 +40,10 @@
                                 @foreach ($data as $item)
                                 <tr>
                                     <td>{{ $item->numero_referencia }}</td>
+                                    <td>{{ $item->encargado->numero_serial }}</td>
                                     <td>{{ $item->fecha_recepcion }}</td>
                                     <td>{{ $item->fecha_entrega }}</td>
                                     <td>{{ $item->Usuario->nombre}}</td>
-
 
                                     <td>{{ $item->numero_total_extintor }}</td>
                                     <td>{{ $item->estado }}</td>
@@ -81,8 +82,7 @@
                                                                         value="{{$item->fecha_recepcion}}">
                                                                 </div>
                                                                 <div class="form-group col-md-6">
-                                                                    <label for="Fecha Entrega">{{__('Fecha de
-                                                                        entrega')}}</label>
+                                                                    <label for="Fecha Entrega">{{__('Fecha de entrega')}}</label>
                                                                     <input required type="date" class="form-control"
                                                                         id="fecha_entrega" name="fecha_entrega"
                                                                         value="{{$item->fecha_entrega}}">
@@ -119,10 +119,8 @@
                                                                 </div>
                                                             </div>
                                                             <div style="text-align:center; margin-top: 30px;">
-                                                                <button type="submit"
-                                                                    class="btn btn-success">Guardar</button>
-                                                                <a href="{{ url('/home') }}"
-                                                                    class="btn btn-danger">Cancelar</a>
+                                                                <button type="submit" class="btn btn-success">Guardar</button>
+                                                                <a href="{{ url('/home') }}" class="btn btn-danger">Cancelar</a>
                                                             </div>
                                                         </form>
                                                     </div>

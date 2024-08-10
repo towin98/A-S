@@ -25,24 +25,24 @@
                         <table class="table" id="example">
                             <thead>
                                 <tr class="text-left">
+                                    <th>{{ __('Orden Servicio') }}</th>
                                     <th>{{ __('Fecha de ingreso') }}</th>
                                     <th>{{ __('Fecha de entrega') }}</th>
                                     <th>{{ __('Cliente') }}</th>
-                                    <th>{{ __('Colaborador') }}</th>
-                                    <th>{{ __('Orden Servicio') }}</th>
-                                    <th>{{ __('No extintores') }}</th>
+                                    <th>{{ __('Colaborador') }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                    <th>{{ __('Cant.') }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th>{{ __('Estado') }}</th>
-                                    <th>{{ __('Estado') }}</th>
+                                    <th>{{ __('Acción') }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($data as $item)
                                 <tr class="text-center">
+                                    <td>{{ $item->numero_referencia }}</td>
                                     <td>{{ $item->fecha_recepcion }}</td>
                                     <td>{{ $item->fecha_entrega }}</td>
                                     <td>{{ $item->nombre_encargado }}</td>
                                     <td>{{ $item->Usuario->nombre}}</td>
-                                    <td>{{ $item->numero_referencia }}</td>
                                     <td>{{ $item->numero_total_extintor }}</td>
                                     <td>{{ $item->estado }}</td>
                                     <td>
