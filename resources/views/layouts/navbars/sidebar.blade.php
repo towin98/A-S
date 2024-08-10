@@ -17,14 +17,14 @@
                     <p>{{ __('Panel administrativo') }}</p>
                 </a>
             </li>
-            @can('tecnico')
+            {{-- @can('tecnico') --}}
             <li class="nav-item{{ $activePage == 'recargas' ? ' active' : '' }}">
                 <a class="nav-link" href="{{ route('recarga') }}">
                     <i class="material-icons">reorder</i>
                     <p>{{ __('Recargas') }}</p>
                 </a>
             </li>
-            @endcan
+            {{-- @endcan --}}
 
             <li class="nav-item {{ $activePage == 'hocol' ? ' active' : '' }}">
                 <a class="nav-link " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">

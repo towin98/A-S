@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ListadoIngreso;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListadoIngreso\ListadoIngresoCreate;
+use App\Models\Encargado;
 use App\Models\Ingreso;
 use App\Models\ListadoIngreso;
 use App\Models\SubCategoria;
@@ -13,8 +14,7 @@ use Exception;
 
 class ListadoIngresoController extends Controller
 {
-    public function index($id)
-    {
+    public function index($id) {
         return view('pages.listadoIngreso.listadoIngreso', compact('id'));
     }
 
@@ -33,8 +33,7 @@ class ListadoIngresoController extends Controller
         return UnidadMedida::where('sub_categoria_id', $id)->get();
     }
 
-    public function store(ListadoIngresoCreate $request)
-    {
+    public function store(ListadoIngresoCreate $request) {
         $numExtRecibido = $request->numero_extintor;
         $totalExtIngreso = Ingreso::where('id', $request->ingreso_id)->select('id', 'numero_total_extintor')->first();
         $totalExtIngreso = $totalExtIngreso->numero_total_extintor;
@@ -54,21 +53,42 @@ class ListadoIngresoController extends Controller
             return back()->with('error', 'Número de extintores sobre pasa el máximo de extintores en la orden: ' . $total . ' restantes');
         }
     }
-    public function ListadoIngreso($id)
-    {
 
+    /**
+     * Módulo Ingreso: Este método es utilizado para mostrar el Listado de ingreso de una orden
+     * Aquí es donde se pasa a produccion la Orden de Servicio
+     *
+     * @param [type] $id Orden de servicio
+     * @return void
+     */
+    public function ListadoIngreso($id) {
         try {
             $numeroReferencia = $id;
+
+            $cliente = Ingreso::select([
+                    'id',
+                    'encargado_id'
+                ])
+                ->with('Encargado')
+                ->find($id);
+
             $listIngreso = $this->obtenerListadoIngreso($id);
+
+
+            // print($listIngreso);
+            // return;
+
             if ($listIngreso) {
-                return view('pages.listadoIngreso.verListadoIngreso', compact('numeroReferencia', 'listIngreso'));
+                return view('pages.listadoIngreso.verListadoIngreso', compact('numeroReferencia', 'listIngreso', 'cliente'));
             } else {
-                return back('error', 'No se encuentrar extintores registrados con esta orden de servicio.');
+                return back('error', 'No se encuentra extintores registrados con esta orden de servicio.');
             }
+
         } catch (\Throwable $th) {
             return back('error', 'No se encuentra disponible en estos momentos.');
         }
     }
+
     public function exportarListadoIngreso($idIngreso)
     {
         $data = Ingreso::where('id', $idIngreso)->with(
@@ -80,12 +100,34 @@ class ListadoIngresoController extends Controller
         )->get();
         return $data;
     }
+
+    /**
+     * Método que retorna el detalle de exitores de la orden
+     *
+     * @param [type] $idIngreso Orden de servicio
+     * @return \Illuminate\Support\Collection
+     */
     private function obtenerListadoIngreso($idIngreso)
     {
-        return  ListadoIngreso::select('listado_ingreso.id', 'listado_ingreso.unidad_medida_id', 'listado_ingreso.created_at', 'listado_ingreso.numero_extintor', 'actividades.nombre_actividad')
+        return  ListadoIngreso::select([
+                'listado_ingreso.id',
+                'listado_ingreso.ingreso_id',
+                'listado_ingreso.unidad_medida_id',
+                'listado_ingreso.created_at',
+                'listado_ingreso.numero_extintor',
+                'actividades.nombre_actividad',
+                'unidades_medida.unidad_medida',
+                'unidades_medida.cantidad_medida',
+                'subcategorias.nombre_subCategoria'
+            ])
             ->where('ingreso_id', $idIngreso)
-            ->join('actividades', 'listado_ingreso.actividad_id', '=', 'actividades.id')->get();
+            ->join('actividades', 'listado_ingreso.actividad_id', '=', 'actividades.id')
+
+            ->join('unidades_medida', 'listado_ingreso.unidad_medida_id', '=', 'unidades_medida.id')
+            ->join('subcategorias', 'unidades_medida.sub_categoria_id', '=', 'subcategorias.id')
+            ->get();
     }
+
     public function update(ListadoIngresoCreate $request, $id)
     {
         try {

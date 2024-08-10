@@ -22,32 +22,30 @@ class IngresoController extends Controller
 {
     use ImprimirTicket;
 
+    public function ticket($id_referencia) {
+        $numeroEtiqueta = NumeroTiquete::all()->last();
 
-    public function ticket($id_referencia)
-    {
-            $numeroEtiqueta = NumeroTiquete::all()->last();
-
-            $actingreso = Ingreso::where('id', $id_referencia)->first();
-            /**
-            * Valida la informacion y crea los nuevos tickets para el ingreso
-            */
+        $actingreso = Ingreso::where('id', $id_referencia)->first();
+        /**
+         * Valida la informacion y crea los nuevos tickets para el ingreso
+         */
 
 
-            for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
-                $nuevaEtiqueta = new NumeroTiquete();
-                $nuevaEtiqueta->numero_tiquete = $numeroEtiqueta->numero_tiquete + $i;
-                $nuevaEtiqueta->ingreso_id = $actingreso->id;
-                $nuevaEtiqueta->save();
-            }
-            /**
-            * Cambia el estado del ingreso y guarda el registro
-            */
+        for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
+            $nuevaEtiqueta = new NumeroTiquete();
+            $nuevaEtiqueta->numero_tiquete = $numeroEtiqueta->numero_tiquete + $i;
+            $nuevaEtiqueta->ingreso_id = $actingreso->id;
+            $nuevaEtiqueta->save();
+        }
+        /**
+         * Cambia el estado del ingreso y guarda el registro
+         */
 
-                /**
-                * Ingresa a imprimir la factura
-                */
+        /**
+         * Ingresa a imprimir la factura
+         */
 
-              /*   $ingreso = Ingreso::where('numero_referencia', $id_referencia)
+        /*   $ingreso = Ingreso::where('numero_referencia', $id_referencia)
                 ->with('Usuario', 'Encargado')
                 ->first();
 
@@ -56,8 +54,8 @@ class IngresoController extends Controller
                 $impresora = new Printer($connector);
 
                 $data = $this->obtenerListadoIngreso($id_referencia); */
-                //return $data;
-/*
+        //return $data;
+        /*
                 $impresora->setJustification(Printer::JUSTIFY_CENTER);
                 $logo2 =  EscposImage::load("C:\Users\hp\Documents\GitHub\ProyectoExtintores\public\barra.png", false);
                 $logo = EscposImage::load("C:\Users\hp\Documents\GitHub\ProyectoExtintores\public\material\img\imprimir.gif", false);
@@ -76,8 +74,8 @@ class IngresoController extends Controller
                 $impresora->text("Numero de referencia: ");
                 $impresora->text($ingreso->id . "\n");
                 $impresora->feed(1);
- */
-              /*   foreach( $data as $item){
+        */
+        /*   foreach( $data as $item){
                     $impresora->setJustification(Printer::JUSTIFY_LEFT);
                     $impresora->text("Numero de Extintores:  ");
                     $impresora->text($item->numero_extintor. "\n");
@@ -95,54 +93,62 @@ class IngresoController extends Controller
                 $impresora->feed(3);
                 $impresora->cut();
                 $impresora->close(); */
-/*  *//*
+        /*
 
                 return redirect('listIngreso');
             } else {
                 return back();
             } */
 
-            if ($actingreso) {
+        if ($actingreso) {
 
-                $ingreso = Ingreso::where('numero_referencia', $id_referencia)
+            $ingreso = Ingreso::where('numero_referencia', $id_referencia)
                 ->with('Usuario', 'Encargado')
                 ->first();
 
-                $data = $this->obtenerListadoIngreso($id_referencia);
+            $data = $this->obtenerListadoIngreso($id_referencia);
 
-                $generarCodigo = Ingreso::where('numero_referencia', $id_referencia)
+            $generarCodigo = Ingreso::where('numero_referencia', $id_referencia)
                 ->with('Usuario', 'Encargado')
                 ->first();
-                $pdf = PDF::loadView('pdf.pdf',['ingreso'=>$ingreso],['data' => $data]);
-                return $pdf->stream();
-                //return redirect('listIngreso');
-            }
+            $pdf = PDF::loadView('pdf.pdf', ['ingreso' => $ingreso], ['data' => $data]);
+            return $pdf->stream();
+            //return redirect('listIngreso');
+        }
 
-
-
-
-            //return view('pdf.pdf',  compact('ingreso', 'data'));
+        //return view('pdf.pdf',  compact('ingreso', 'data'));
     }
 
-    private function obtenerListadoIngreso($idIngreso)
-    {
-        return  ListadoIngreso::select('listado_ingreso.id', 'listado_ingreso.unidad_medida_id', 'listado_ingreso.created_at', 'listado_ingreso.numero_extintor', 'actividades.nombre_actividad','unidades_medida.*')
+    private function obtenerListadoIngreso($idIngreso) {
+        return  ListadoIngreso::select('listado_ingreso.id', 'listado_ingreso.unidad_medida_id', 'listado_ingreso.created_at', 'listado_ingreso.numero_extintor', 'actividades.nombre_actividad', 'unidades_medida.*')
             ->where('ingreso_id', $idIngreso)
             ->join('actividades', 'listado_ingreso.actividad_id', '=', 'actividades.id')
             ->join('unidades_medida', 'listado_ingreso.unidad_medida_id', '=', 'unidades_medida.id')
             ->get();
     }
-    public function getIngreso($id_vendedor)
-    {
-        /** Validamos si encuentra un ingreso con el id del usuario y en estado de recibido si exite que nos lo muestre
+
+    /**
+     * Módulo Ingreso: Trae un ingreso para un auxiliar.
+     *
+     * @param [type] $id_vendedor
+     * @return \stdClass|\App\Models\Ingreso
+     */
+    public function getIngreso($id_vendedor) {
+        /**
+         * Validamos si encuentra un ingreso con el id del usuario y en estado de recibido si exite que nos lo muestre
          * de lo contrario que nos cree un nuevo ingreso
          */
 
-        $ingreso = DB::table('ingresos')->where('estado', 'recibido')->where('usuario_id', $id_vendedor)->first();
+        $ingreso = DB::table('ingresos')
+            ->where('estado', 'recibido')
+            ->where('usuario_id', $id_vendedor)
+            ->first();
+
         if ($ingreso)
             return $ingreso;
         else
             $ingreso = new Ingreso();
+
         $ingreso->fecha_recepcion = now()->format('Y-m-d');
         $ingreso->usuario_id = $id_vendedor;
         $ingreso->numero_referencia = $ingreso->id;
@@ -151,8 +157,7 @@ class IngresoController extends Controller
 
         return $ingreso;
     }
-    public function listadoPorIngreso($idIngreso)
-    {
+    public function listadoPorIngreso($idIngreso) {
         $data = Ingreso::where('id', $idIngreso)->with(
             'Listado_Ingreso',
             'Listado_Ingreso.UnidadMedida.SubCategoria.Categoria',
@@ -164,35 +169,29 @@ class IngresoController extends Controller
         return $var['listado_ingreso'];
         //return view('pages.ingreso.listadoPorIngreso', compact('var'));
     }
-    public function index($id)
-    {
-        /** Hacemos llamado del metodo anterior llevando el respectivo ingreso */
+
+    /**
+     * Modulo Ingreso: Método que se ejecuta al ingresar en el modulo de Ingreso.
+     *
+     * @param [type] $id Colaborador
+     * @return \Illuminate\View\View
+     */
+    public function index($id) {
         $crearId = $this->getIngreso($id);
         return view('pages.ingreso.index', compact('crearId'));
     }
-    public function listadoIngreso($id)
-    {
-        $actingreso = Ingreso::where('numero_referencia', $id)->first();
-        $total = $actingreso->numero_total_extintor;
 
-        // Consultando listado de ingreso para obtener extintores ingresados hasta el momento.
-        $totalExtintoresIngresados = listadoIngreso::where('ingreso_id', $actingreso->id)->sum('numero_extintor');
-        return view('pages.listadoIngreso.listadoIngreso', compact('id', 'total', 'totalExtintoresIngresados'));
-    }
-    public function getEstadoIngreso()
-    {
-        /** Buscamos todos los ingresos que se encuentre con los estados diferentes a recibido */
-
-        $data = Ingreso::select('id', 'fecha_recepcion', 'fecha_entrega', 'encargado_id', 'usuario_id', 'numero_referencia', 'numero_total_extintor', 'estado')
-            ->where('estado', '=', 'Produccion')->get();
-        return view('pages.ingreso.verIngreso', compact('data'));
-    }
-
-    public function update(Request $request, $id)
-    {
+    /**
+     * Modulo Ingreso: Modal Editar ingreso
+     *
+     * @param Request $request
+     * @param [type] $id Orden servicio
+     * @return void
+     */
+    public function update(Request $request, $id) {
         $ingreso = Ingreso::where('id', $id)->first();
         if (!$ingreso) {
-            return back()->with('validacion_datos','No existe el ingreso, por favor intente de nuevo.');
+            return back()->with('validacion_datos', 'No existe el ingreso, por favor intente de nuevo.');
         }
 
         $request->merge([
@@ -208,16 +207,16 @@ class IngresoController extends Controller
                 return back()->withErrors($errores);
             }
         } catch (\Throwable $th) {
-            return back()->with('validacion_datos', 'No se pudo crear el ingreso: '. $th);
+            return back()->with('validacion_datos', 'No se pudo crear el ingreso: ' . $th);
         }
 
         $id = $ingreso->id;
         if ($ingreso) {
+            $ingreso->fecha_recepcion       = $request->input('fecha_recepcion');
             $ingreso->fecha_entrega         = $request->input('fecha_entrega');
             $ingreso->encargado_id          = $request->input('encargado_id');
             $ingreso->numero_referencia     = $request->numero_referencia;
             $ingreso->numero_total_extintor = $request->input('numero_total_extintor');
-            $ingreso->estado                = $request->estado;
 
             // Guardamos en base de datos
             $ingreso->save();
@@ -226,23 +225,78 @@ class IngresoController extends Controller
             return redirect('listIngreso')->with('error', 'No se actualizo  el ingreso');
         }
     }
-    public function cambioEstado($id)
-    {
+
+    /**
+     * Método para ingresar extintores para la orden.
+     *
+     * @param [type] $id Id de la referencia o Orden.
+     * @return \Illuminate\View\View
+     */
+    public function listadoIngreso($id) {
+        try {
+            $actingreso = Ingreso::where('numero_referencia', $id)->first();
+            $total = $actingreso->numero_total_extintor;
+
+            // Consultando listado de ingreso para obtener extintores ingresados hasta el momento.
+            $totalExtintoresIngresados = listadoIngreso::where('ingreso_id', $actingreso->id)->sum('numero_extintor');
+            return view('pages.listadoIngreso.listadoIngreso', compact('id', 'total', 'totalExtintoresIngresados'));
+        } catch (Exception $e) {
+            return back()->with('validacion_datos', 'Error inesperado al consultar referencia');
+        }
+    }
+
+    /**
+     * Módulo Ingresos > Ver Ingresos
+     *
+     * @return View
+     */
+    public function getEstadoIngreso() {
+        try {
+            // Buscamos todos los ingresos que se encuentre con los estados diferentes a recibido
+            $data = Ingreso::select([
+                    'id',
+                    'fecha_recepcion',
+                    'fecha_entrega',
+                    'encargado_id',
+                    'usuario_id',
+                    'numero_referencia',
+                    'numero_total_extintor',
+                    'estado'
+                ])
+                ->with('encargado:id,numero_serial')
+                ->where('estado', '=', 'Produccion')
+                ->orderBy('id', 'desc')
+                ->get();
+
+        } catch (Exception $e) {
+            return back()->with('error', 'Error inesperado en la consulta.');
+        }
+        return view('pages.ingreso.verIngreso', compact('data'));
+    }
+
+    /**
+     * Método que pasa a producción.
+     *
+     * @param [type] $id Orden
+     * @return void
+     */
+    public function cambioEstado($id) {
 
         try {
             $numeroEtiqueta = NumeroTiquete::all()->last();
 
-            $actingreso = Ingreso::where('id', $id)->first();
-            for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
+            $actIngreso = Ingreso::where('id', $id)->first();
+            for ($i = 1; $i <= $actIngreso->numero_total_extintor; $i++) {
 
+                // Aquí se crea por cada extintor una etiqueta nueva
                 NumeroTiquete::create([
                     "numero_tiquete" => (($numeroEtiqueta->numero_tiquete ?? 0)  + 0) + $i,
-                    "ingreso_id"     => $actingreso->id
+                    "ingreso_id"     => $actIngreso->id
                 ]);
             }
-            if ($actingreso) {
-                $actingreso->estado = 'Produccion';
-                $actingreso->save();
+            if ($actIngreso) {
+                $actIngreso->estado = 'Produccion';
+                $actIngreso->save();
                 return redirect('listIngreso');
             } else {
                 return back();
@@ -251,17 +305,25 @@ class IngresoController extends Controller
             return $th;
         }
     }
-    public function actualizarI(Request $request, $id)
-    {
+
+    /**
+     * Módulo Ingreso: Por si el usuario quiere Editar ingreso de orden
+     *
+     * @param Request $request
+     * @param integer $id Order Servicio
+     * @return void
+     */
+    public function actualizarI(Request $request, $id) {
         try {
             $ingreso = Ingreso::where('id', $id)->first();
             $id = $ingreso->id;
             if ($ingreso) {
+                $ingreso->fecha_recepcion = $request->input('fecha_recepcion');
                 $ingreso->fecha_entrega = $request->input('fecha_entrega');
-                $ingreso->encargado_id  = $request->input('encargado_id');
-                $ingreso->numero_referencia = $ingreso->id;
-                $ingreso->numero_total_extintor = $ingreso->numero_total_extintor;
-                $ingreso->estado = $ingreso->estado;
+                // $ingreso->encargado_id  = $request->input('encargado_id');
+                // $ingreso->numero_referencia = $ingreso->id;
+                // $ingreso->numero_total_extintor = $ingreso->numero_total_extintor;
+                // $ingreso->estado = $ingreso->estado;
                 // Guardamos en base de datos
                 $ingreso->save();
 
@@ -273,8 +335,15 @@ class IngresoController extends Controller
             return redirect('listIngreso')->with('error', 'No se actualizo  el ingreso');
         }
     }
-    public function updateTotalExtintor(Request $request, $id)
-    {
+
+    /**
+     * Módulo ingreso: Modifica el número total de extintores de la orden antes de pasar a producción.
+     *
+     * @param Request $request Data recibida
+     * @param [type] $id Order Servicio
+     * @return void
+     */
+    public function updateTotalExtintor(Request $request, $id) {
         /** Creamos este metodo para hacer uso de el en varias situaciones */
         try {
             $ingreso = Ingreso::where('id', $id)->first();
@@ -285,27 +354,24 @@ class IngresoController extends Controller
                  */
                 listadoIngreso::where('ingreso_id', $ingreso->id)->delete();
 
-                $ingreso->fecha_entrega         = $ingreso->fecha_entrega;
-                $ingreso->encargado_id          = $ingreso->encargado_id;
-                $ingreso->numero_referencia     = $ingreso->id;
                 $ingreso->numero_total_extintor = $request->numero_total_extintor;
                 $ingreso->estado = 'Produccion';
-                // Guardamos en base de datos
                 $ingreso->save();
+
                 return back();
             }
         } catch (\Throwable $th) {
             return redirect('listIngreso')->with('error', 'No se actualizo  el ingreso');
         }
     }
-    public function imprimirTiquete($id)
-    {
+
+    public function imprimirTiquete($id) {
         $generarCodigo = NumeroTiquete::select('*')->where('ingreso_id', $id)->get();
         // return $generarCodigo;
         return view('barCode', compact('generarCodigo'));
     }
 
-    public function vistaReporteExtintor(){
+    public function vistaReporteExtintor() {
         return view('pages.reportes.reporteExtintor');
     }
 }

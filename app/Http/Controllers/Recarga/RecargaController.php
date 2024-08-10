@@ -13,14 +13,27 @@ use PhpParser\Node\Expr\Cast\String_;
 class RecargaController extends Controller
 {
     use CambioPartesListado, FugaListado, ConsultaRecarga;
+
     public function index()
     {
-        $data = Ingreso::select('ingresos.id', 'ingresos.fecha_recepcion', 'ingresos.fecha_entrega', 'encargados.nombre_encargado', 'ingresos.usuario_id', 'ingresos.numero_referencia', 'ingresos.numero_total_extintor', 'ingresos.estado')
+        $data = Ingreso::select([
+                'ingresos.id',
+                'ingresos.fecha_recepcion',
+                'ingresos.fecha_entrega',
+                'encargados.nombre_encargado',
+                'ingresos.usuario_id',
+                'ingresos.numero_referencia',
+                'ingresos.numero_total_extintor',
+                'ingresos.estado'
+            ])
             ->join('encargados', 'ingresos.encargado_id', '=', 'encargados.id')
-            ->where('estado', '=', 'Produccion')->get();
+            ->where('estado', '=', 'Produccion')
+            ->get();
+
         return view('pages.recarga.verIngresoRecarga', compact('data'));
         //return view('pages.recarga.recarga');
     }
+
     public function setRecargaListado($id)
     {
         $listadoRecarga = $this->listadoRecarga($id);

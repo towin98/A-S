@@ -60,78 +60,76 @@
                         <div class="card mt-2">
                             <div class="card-header card-header-text card-header-warning">
                                 <div class="card-text">
-                                    <h4 class="card-title">{{ __('Registrar Listado De Ingreso para') }}</h4>
-                                    {{-- <h2>{{$referencia}}</h2> --}}
+                                    <h4 class="card-title">{{ __('Registrar Listado de Ingreso para') }} la Orden de Servicio: <strong> <u> {{$id}} </u> </strong> </h4>
                                 </div>
                             </div>
                             <div class="card-body">
 
-                                <form method="POST" action="{{ url('/listadoIngreso') }}">
-                                    {{ csrf_field() }}
-                                    <div class="form-group">
-                                        <label for="ingreso_id">{{ __('N° Referencia:') }}</label>
-                                        <input type="text" class="form-control" id="ingreso_id" required value="{{$id}}"
-                                            name="ingreso_id">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="categoria">{{ __('Seleccionar Categoria:') }}</label>
-                                        <select class="form-control" name="categoria" id="categoria">
-                                            <option value="">---SELECCIONAR---</option>
-                                            @foreach (Categoria() as $item)
-                                            <option value="{{ $item->id}}">{{ $item->nombre_categoria}} </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="subCategoria">{{ __('Seleccionar Subcategoria:') }}</label>
-                                        <select class="form-control" name="Subcategoria" id="Subcategoria">
-                                            <option value="">---SELECCIONAR---</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="unidad_medida_id">{{ __('Seleccionar Unidad De Medida:') }}</label>
-                                        <select class="form-control" name="unidad_medida_id" id="unidad_medida_id">
-                                            <option value="">---SELECCIONAR---</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="actividad">{{ __('Seleccionar Actividad:') }}</label>
-                                        <select class="form-control" name="actividad" id="actividad">
-                                            <option value="">---SELECCIONAR---</option>
-                                            @foreach (Actividad() as $item)
-                                            <option value="{{ $item->id}}">{{ $item->nombre_actividad}}--{{$item->abreviacion_actividad}} </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="numero_extintor">{{ __('Numero De Extintores:') }}</label>
-                                        <input type="number" class="form-control" id="numero_extintor" required name="numero_extintor">
-                                    </div>
-                                    <button id="enviar" class="btn btn-warning" {{ $totalExtintoresIngresados == $total ? 'disabled' : '' }}>{{ __('Enviar') }}</button>
-                                </form>
-                                <div>
-                                    <div class="row">
-                                        <form method="POST" action="/totalExt/{{$id}}" style="margin-top: 40px;" enctype="/multipart/form-data">
-                                            {{ csrf_field()}}
-                                            {{ method_field('PUT')}}
-                                            <div class="col">
-                                                <h3 class="mt-2 mt-0">{{__('Numero total de extintores: ')}} <input type="number" name="numero_total_extintor" style="width: 100px;" id="numero_total_extintor" value="{{$total}}"></h3>
-                                                <small>Enter en el campo para actualizar el número de extintores si quiere cambiar.</small> <br>
-                                                <small class="text-danger">Puede cambiar el total de extintores de la orden, pero deberá ingresar nuevamente el registro del total de extintores</small>
-                                            </div>
-                                        </form>
-
-                                        <div class="col">
-
-                                            {{-- <a href="{{ url('ticket/' . $id) }}"><button id="imprimir" class="btn btn-secondary"
-                                                style="margin-left: 30%">{{ __('Imprimir') }}</button></a> --}}
-
-                                                <a href="{{ url('listIngreso/'.$id) }}"><button id="enviar" class="btn btn-danger"
-                                                        style="float: right">{{ __('Listado ingreso') }}</button></a>
-                                        </div>
-                                    </div>
-                                    </div>
+                            <form method="POST" action="{{ url('/listadoIngreso') }}" class="row">
+                                {{ csrf_field() }}
+                                <div class="form-group d-none">
+                                    <label for="ingreso_id">{{ __('N° Referencia:') }}</label>
+                                    <input type="hidden" class="form-control" id="ingreso_id" required value="{{$id}}" name="ingreso_id" readonly>
                                 </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="categoria">{{ __('Seleccionar Categoria:') }}</label>
+                                    <select class="form-control" name="categoria" id="categoria">
+                                        <option value="">---SELECCIONAR---</option>
+                                        @foreach (Categoria() as $item)
+                                        <option value="{{ $item->id}}">{{ $item->nombre_categoria}} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="subCategoria">{{ __('Seleccionar Subcategoria:') }}</label>
+                                    <select class="form-control" name="Subcategoria" id="Subcategoria">
+                                        <option value="">---SELECCIONAR---</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="unidad_medida_id">{{ __('Seleccionar Unidad De Medida:') }}</label>
+                                    <select class="form-control" name="unidad_medida_id" id="unidad_medida_id">
+                                        <option value="">---SELECCIONAR---</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="actividad">{{ __('Seleccionar Actividad:') }}</label>
+                                    <select class="form-control" name="actividad" id="actividad">
+                                        <option value="">---SELECCIONAR---</option>
+                                        @foreach (Actividad() as $item)
+                                        <option value="{{ $item->id}}">{{ $item->nombre_actividad}}--{{$item->abreviacion_actividad}} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="numero_extintor">{{ __('Numero De Extintores:') }}</label>
+                                    <input type="number" class="form-control" id="numero_extintor" required name="numero_extintor">
+                                </div>
+                                <div class="col-12">
+                                    <button id="enviar" class="btn btn-warning float-right" {{ $totalExtintoresIngresados == $total ? 'disabled' : '' }}>{{ __('Enviar') }}</button>
+                                </div>
+                            </form>
+                            <div class="row mt-3">
+                                <form method="POST" action="/totalExt/{{$id}}" enctype="/multipart/form-data">
+                                    {{ csrf_field()}}
+                                    {{ method_field('PUT')}}
+                                    <div class="col">
+                                        <h3 class="mt-2 mt-0">{{__('Numero total de extintores: ')}} <input type="number" name="numero_total_extintor" style="width: 100px;" id="numero_total_extintor" value="{{$total}}"></h3>
+                                        <small class="text-danger">Puede cambiar el total de extintores de la orden, pero deberá ingresar nuevamente el registro del total de extintores</small> <br>
+                                        <small>Enter en el campo para actualizar el número de extintores si quiere cambiar.</small>
+                                    </div>
+                                </form>
+
+                                <div class="col">
+
+                                    {{-- <a href="{{ url('ticket/' . $id) }}"><button id="imprimir" class="btn btn-secondary"
+                                        style="margin-left: 30%">{{ __('Imprimir') }}</button></a> --}}
+
+                                    <a href="{{ url('listIngreso/'.$id) }}" title="Se habilita si ingresó la totalidad de extintores">
+                                        <button id="enviar" class="btn btn-danger" style="float: right" {{ ($totalExtintoresIngresados == $total) ? "" : "disabled" }}  >{{ __('Listado ingreso') }}</button>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
