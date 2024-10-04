@@ -6,7 +6,7 @@
         <div class="col">
             <div class="container">
                 <div class="card">
-                    <div class="card-header card-header-text card-header-warning">
+                    <div class="card-header card-header-text card-header-warning" style="color: black">
                         <div class="card-text">
                             <h4 class="card-title">{{ __('Buscar Cliente Extintor') }}</h4>
                         </div>
@@ -25,12 +25,12 @@
                                 </select>
                             </div>
                             <div class="form-group col-md-3">
-                                <label class="p-2" for="id_fecha_del">{{ __('Fecha Desde') }}</label>
-                                <input type="date" class="form-control mt-4" id="id_fecha_del" name="fecha_desde" value="{{ date("Y-m-d",strtotime(date("Y-m-d")."- 1 month")) }}" required>
+                                <label class="" for="id_fecha_del">{{ __('Fecha Desde') }}</label>
+                                <input type="date" class="form-control" id="id_fecha_del" name="fecha_desde" value="{{ date("Y-m-d",strtotime(date("Y-m-d")."- 1 month")) }}" required>
                             </div>
                             <div class="form-group col-md-3">
-                                <label class="p-2" for="id_fecha_hasta">{{ __('Fecha Hasta') }}</label>
-                                <input type="date" class="form-control mt-4" id="id_fecha_hasta" name="fecha_hasta" value="{{ date('Y-m-d') }}" required>
+                                <label class="" for="id_fecha_hasta">{{ __('Fecha Hasta') }}</label>
+                                <input type="date" class="form-control" id="id_fecha_hasta" name="fecha_hasta" value="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">
@@ -38,7 +38,7 @@
                         </div>
 
                         <div id="id_propietario" style="display: none"></div>
-                        <div id="id_origen">REPORTE_CLIENTE_EXTINTOR</div>
+                        <div id="id_origen" class="d-none">REPORTE_CLIENTE_EXTINTOR</div>
 
                         <div class="card-body">
                             <table class="table table-striped" id="example">

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ListadoIngreso extends Model
 {
     protected $table = 'listado_ingreso';
-    protected $fillable = ['ingreso_id', 'ingreso_id', 'unidad_medida_id', 'numero_extintor', 'actividad_id'];
+    protected $fillable = ['ingreso_id', 'ingreso_id', 'unidad_medida_id', 'numero_extintor', 'actividad_id', 'estado'];
 
     static $rules = [
         'ingreso_id'                => 'required|numeric',

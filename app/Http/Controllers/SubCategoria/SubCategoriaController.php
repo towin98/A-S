@@ -43,9 +43,18 @@ class SubCategoriaController extends Controller
             return back()->with('errors', 'No se puedo completar este evento');
         }
     }
+
+    /**
+     * Deletes a SubCategoria record by its ID and sets its state to inactive.
+     *
+     * @param int $id The ID of the SubCategoria to be deleted.
+     *
+     * @return \Illuminate\Http\RedirectResponse Redirects back to the previous page with a success or error message.
+     *
+     * @throws \Exception If the SubCategoria cannot be deleted.
+     */
     public function destroy($id)
     {
-        #Eliminar un cliente segun su ID
         try {
             $error = 'Error no se puede eliminar este registro';
             $delectsubCategoria = SubCategoria::findOrFail($id);
@@ -56,4 +65,38 @@ class SubCategoriaController extends Controller
             return back()->with('error', $error);
         }
     }
+
+    /**
+     * Metodo que consulta agentes de extintor.
+     *
+     * @return JsonResponse
+     */
+    public function buscarAgentes() {
+        try {
+            $arrData = SubCategoria::select([
+                'subcategorias.id',
+                'subcategorias.nombre_subCategoria',
+                'subcategorias.categoria_id',
+                'subcategorias.abreviacion',
+                'subcategorias.estado',
+                'categorias.nombre_categoria'
+            ])
+                ->join('categorias', 'subcategorias.categoria_id', '=', 'categorias.id')
+                ->where('subcategorias.estado', '=', 1)
+                ->get();
+
+                return response()->json([
+                    "data" => $arrData
+                ],200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => [
+                    'No se encontraron registros'
+                ]
+            ], 404);
+        }
+    }
+
 }

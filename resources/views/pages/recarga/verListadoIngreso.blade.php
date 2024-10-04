@@ -4,50 +4,53 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="container">
-                        @if (session('exito'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('exito') }}
-                            </div>
-                        @endif
-                        <div class="card">
-                            <div class="card-header card-header-text card-header-warning">
-                                <div class="card-text">
-                                    <h4 class="card-title">{{ __('Ver Recargas') }}</h4>
-                                </div>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <table class="table table-striped" id="example">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('Orden Servicio') }}</th>
-                                            <th>{{ __('Nro Extintores') }}</th>
-                                            <th>{{ __('Fecha ingreso') }}</th>
-                                            <th>{{ __('Capacidad') }}</th>
-                                            <th>{{ __('Unidad de medida') }}</th>
-                                            <th>{{ __('SubCategoria') }}</th>
-                                            <th>{{ __('Categoria') }}</th>
-                                            <th>{{ __('Actividad') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($datos as $item)
-                                            <tr>
-                                                <td>{{ $item->ingreso_id }}</td>
-                                                <td>{{ $item->numero_extintor }}</td>
-                                                <td>{{ $item->fecha_recepcion }}</td>
-                                                <td>{{ $item->cantidad_medida }}</td>
-                                                <td>{{ $item->unidad_medida }}</td>
-                                                <td>{{ $item->nombre_subCategoria }}</td>
-                                                <td>{{ $item->nombre_categoria }}</td>
-                                                <td>{{ $item->nombre_actividad }}({{ $item->abreviacion_actividad }})</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                    <!-- <div class="container"> -->
+                    @if (session('exito'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('exito') }}
+                        </div>
+                    @endif
+                    <div class="card">
+                        <div class="card-header card-header-text card-header-warning">
+                            <div class="card-text">
+                                <h4 class="card-title">{{ __('Ver Recargas') }}</h4>
                             </div>
                         </div>
+
+                        <h5 class="text-center mt-2 mb-0"><b>Cliente:</b> {{ $dataCliente->numero_serial }} - {{ $dataCliente->nombre_encargado }}</h5>
+
+                        <div class="card-body table-responsive pt-1">
+                            <table class="table table-striped" id="example">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('Orden Servicio') }}</th>
+                                        <th>{{ __('Nro Extintores') }}</th>
+                                        <th>{{ __('Fecha ingreso') }}</th>
+                                        <th>{{ __('Capacidad') }}</th>
+                                        <th>{{ __('Unidad de medida') }}</th>
+                                        <th>{{ __('SubCategoria') }}</th>
+                                        <th>{{ __('Categoria') }}</th>
+                                        <th>{{ __('Actividad') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($datos as $item)
+                                        <tr>
+                                            <td>{{ $item->ingreso_id }}</td>
+                                            <td>{{ $item->numero_extintor }}</td>
+                                            <td>{{ $item->fecha_recepcion }}</td>
+                                            <td>{{ $item->cantidad_medida }}</td>
+                                            <td>{{ $item->unidad_medida }}</td>
+                                            <td>{{ $item->nombre_subCategoria }}</td>
+                                            <td>{{ $item->nombre_categoria }}</td>
+                                            <td>{{ $item->nombre_actividad }}({{ $item->abreviacion_actividad }})</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    <!-- </div> -->
 
                     <div class="card">
                         <div class="card-header card-header-text card-header-warning">
@@ -74,6 +77,34 @@
                         @endif
 
                         <div class="card-body table-responsive">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 10px;" class="bg-success"></div>
+                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que estos extintores ya se les realizo ingreso de actividad.
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 10px; background: #ff9800"></div>
+                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que estos extintores faltan por ingresar actividad.
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 10px; background: #f44336"></div>
+                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que la actividad del extintor esta cerrada.
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="position-absolute pr-4" style="right: 0px">
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger text-capitalize"
+                                            {{ ($estadoOrdenServicio->estado == 1 ? '' : 'disabled') }}
+                                            onclick="closeOrden({{ $dataCliente->idOrden }})">
+                                            <i class="fas fa-lock"></i>
+                                            &nbsp;{{ ($estadoOrdenServicio->estado == 1 ? 'Cerrar Orden' : 'Orden Cerrada') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             <table class="table table-striped" id="example">
                                 <thead>
                                     <tr>
@@ -100,7 +131,11 @@
                                             <td>{{ $item['nombre_categoria'] }}</td>
                                             <td>{{ $item['nombre_actividad'] }}</td>
                                             <td>
-                                                <form action="/recarga/eliminar-extintor-orden/{{ $item['id'] }}"
+                                                <button type="submit" class="btn {{ ($item['estado'] == 0) ? 'btn-danger' : (($item['ingreso_actividad'] == 1) ? 'btn-success' : 'btn-warning') }}
+                                                    btn-fab btn-fab-mini btn-round" data-toggle="modal" onclick="abrirModalRecarga({{ $item['id'] }}, {{ $item['estado'] }})">
+                                                    <i class="material-icons">edit</i>
+                                                </button>
+                                                {{-- <form action="/recarga/eliminar-extintor-orden/{{ $item['id'] }}"
                                                     method="post">
                                                     {{ csrf_field() }}
                                                     {{ method_field('DELETE') }}
@@ -110,7 +145,9 @@
                                                         <i class="material-icons"
                                                             onclick="return confirm('Desea eliminar el registro?')">close</i>
                                                     </button>
-                                                </form>
+                                                </form> --}}
+
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -119,242 +156,163 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12 {{ $primerTiquete == 0 ? 'd-none' : '' }}">
-                    <div class="card">
-                        <div class="card-header card-header-text card-header-warning">
-                            <div class="card-text">
-                                <h4 class="card-title">{{ __('Ingresar recarga') }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal para editar recarga-->
+    <div class="modal fade modal fade bd-example-modal-lg" id="recargaModal" tabindex="-1" role="dialog" data-bs-backdrop="static" aria-labelledby="recargaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold" id="recargaModalLabel">INGRESE DATOS DE LA ACTIVIDAD REALIZADA</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="formProduccion">
+                    {{ csrf_field() }}
+                    <input type="hidden" type="text" value="" name="recarga_id" id="recarga_id">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group mt-0 pb-0 mb-1">
+                                <label for="nro_tiquete_anterior">{{ __('N° tiquete anterior:') }}</label>
+                                <input type="number" class="form-control" id="nro_tiquete_anterior" name="nro_tiquete_anterior" onkeydown="preventEnter(event)">
                             </div>
-                            @if ($errors->any() || session('advertencia'))
-                                <div class="alert alert-danger mt-3" role="alert">
-                                    @if ($errors->any())
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
-
-                                    @if (session('advertencia'))
-                                        {{ session('advertencia') }}
-                                    @endif
-
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            @endif
-                            <div class="row">
-                                <div class="col">
-                                    <h3 style="color: black">{{ __('Etiqueta asignar ') }} {{ $primerTiquete }}</h3>
-                                    <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-primary" data-toggle="modal"
-                                        data-target="#exampleModal">
-                                        Observación etiqueta
-                                    </button>
-                                </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mt-0 pb-0 mb-1">
+                                <label for="nro_tiquete_nuevo">{{ __('N° tiquete nuevo:') }}</label>
+                                <input type="number" class="form-control" id="nro_tiquete_nuevo" value="" name="nro_tiquete_nuevo" onkeydown="preventEnter(event)" required readonly>
                             </div>
-
-                            <div class="card-body">
-                                <form method="POST" action="{{ url('/recarga') }}">
-                                    {{ csrf_field() }}
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="nro_tiquete_anterior">{{ __('N° tiquete anterior:') }}</label>
-                                                <input type="number" class="form-control" id="nro_tiquete_anterior"
-                                                    name="nro_tiquete_anterior" onkeydown="preventEnter(event)"
-                                                    onkeyup="readCodeAnterior(event)">
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="nro_tiquete_nuevo">{{ __('N° tiquete nuevo:') }}</label>
-                                                <input type="number" class="form-control" id="nro_tiquete_nuevo" required
-                                                    value="{{ $primerTiquete }}" name="nro_tiquete_nuevo"
-                                                    onkeydown="preventEnter(event)">
-                                            </div>
-                                        </div>
-
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="nro_extintor">{{ __('N° de extintor:') }}</label>
-                                                <input type="number" class="form-control" id="nro_extintor" required
-                                                    value="1" readonly name="nro_extintor">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="agente">{{ __('Agente:') }}</label>
-                                                <select name="agente" id="agente" class="form-control">
-                                                    <option value="">---SELECCIONAR---</option>
-                                                    @foreach (SubCategoriaActiva() as $item)
-                                                        <option value="{{ $item->id }}">
-                                                            {{ $item->nombre_subCategoria }}
-                                                            --->{{ $item->nombre_categoria }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="capacidad">{{ __('Unidad de medida') }}</label>
-                                                <select name="capacidad_id" id="capacidadProducto" class="form-control">
-                                                    <option value="">{{ __('---Seleccione unidad de medida---') }}
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="activida_recarga_id">{{ __('Seleccionar Actividad') }}</label>
-                                                <select class="form-control" name="activida_recarga_id"
-                                                    id="activida_recarga_id">
-                                                    <option value="">---SELECCIONAR---</option>
-                                                    @foreach (Actividad() as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->nombre_actividad }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-5">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="nro_extintor">{{ __('N° interno cliente:') }}</label>
-                                                <input type="text" class="form-control" id="cliente" required
-                                                    name="nro_interno_cliente" value="{{ $clienteS }}" readonly>
-                                            </div>
-                                        </div>
-                                        <div class=" col">
-                                            <div class="form-group">
-                                                <label for="usuario_recarga_id">{{ __('Colaborador A&S') }}</label>
-                                                <p class="form-control">{{ Auth::user()->nombre }}
-                                                    {{ Auth::user()->apellido }}</p>
-                                                <input type=" text" class="form-control" hidden id="usuario_recarga_id"
-                                                    required name="usuario_recarga_id" value="{{ Auth::user()->id }}"
-                                                    readonly>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="ingreso_recarga_id">{{ __('N° de referencia:') }}</label>
-                                                <input type="text" class="form-control" id="ingreso_recarga_id"
-                                                    required value="{{ $id }}" name="ingreso_recarga_id"
-                                                    readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <h3 class="text-center text-warning">{{ __('Cambio de partes del extintor') }}</h3>
-                                    <div class="form-group">
-
-                                        <div class="row">
-                                            @foreach (cambioParte() as $item)
-                                                <div class="col-3">
-                                                    <div class="form-check form-check-inline">
-                                                        <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                name="cambioParte[]"
-                                                                value="{{ $item->id }}">({{ $item->id }}){{ $item->nombre_parte_cambio }}
-                                                            <span class="form-check-sign">
-                                                                <span class="check"></span>
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                    </div>
-                                    <h3 class="text-center text-warning">{{ __('Prueba') }}</h3>
-                                    <div class="form-group">
-                                        @foreach (Prueba() as $item)
-                                            <div class="form-check form-check-radio form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" name="prueba_id[]"
-                                                        id="prueba_id[]"
-                                                        value="{{ $item->id }}">({{ $item->abreviacion_prueba }}){{ $item->nombre_prueba }}
-                                                    <span class="form-check-sign">
-                                                        <span class="check"></span>
-                                                    </span>
-
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <h3 class="text-center text-warning">{{ 'Fugas' }}</h3>
-                                    <div class="form-group">
-                                        @foreach (Fuga() as $item)
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="radio" name="fuga_id"
-                                                        value="{{ $item->id }}">({{ $item->abreviacion_fuga }}){{ $item->nombre_fuga }}
-                                                    <span class="circle">
-                                                        <span class="check"></span>
-                                                    </span>
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="observacion">{{ __('Observación:') }}</label>
-                                        <input type="text" class="form-control" id="observacion" name="observacion">
-                                    </div>
-                                    <button type="submit" class="btn btn-warning">{{ __('Enviar') }}</button>
-
-                                </form>
-                                {{-- <a href="{{ url('infoRecarga/'.$id) }}">
-                                    <button class="btn btn-primary">{{ __('Ver listado') }}</button></a> --}}
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mt-0 pb-0 mb-1">
+                                <label for="ingreso_recarga_id">{{ __('Orden de Servicio:') }}</label>
+                                <input type="text" class="form-control" id="ingreso_recarga_id" value="{{ $id }}" name="ingreso_recarga_id" readonly required>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-6 col-md-4">
+                            <div class="form-group mt-0 pb-0">
+                                <label for="agente">{{ __('Agente:') }}</label>
+                                <select name="agente" id="agente" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-group mt-0 pb-0">
+                                <label for="capacidad_id">{{ __('Unidad de medida') }}</label>
+                                <select name="capacidad_id" id="capacidad_id" class="form-control" readonly>
+                                    <option value="">{{ __('[Seleccione]') }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-group mt-0 pb-0">
+                                <label for="activida_recarga_id">{{ __('Seleccionar Actividad') }}</label>
+                                <select class="form-control" name="activida_recarga_id" id="activida_recarga_id">
+                                    <option value="">[SELECCIONAR]</option>
+                                    {{-- @foreach (Actividad() as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nombre_actividad }}
+                                        </option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                        </div>
+                        {{-- <div class="col-12">
+                            <div class="form-group mt-3 pb-0">
+                                <label for="id_cliente">{{ __('Cliente') }}</label>
+                                <input type="text" class="form-control" id="id_cliente" name="cliente" value="{{ $dataCliente->numero_serial }} - {{ $dataCliente->nombre_encargado }}" readonly>
+                            </div>
+                        </div> --}}
+                    </div>
+                    <h3 class="mt-0 text-center text-warning">{{ __('Cambio de partes del extintor') }}</h3>
+                    <div class="form-group mt-1 pb-0">
+                        <div class="row">
+                            @foreach (cambioParte() as $item)
+                                <div class="col-3">
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" type="checkbox" id="cambioParte" name="cambioParte[]"
+                                                value="{{ $item->id }}">({{ $item->id }}){{ $item->nombre_parte_cambio }}
+                                            <span class="form-check-sign">
+                                                <span class="check"></span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <h3 class="text-center text-warning mt-1">{{ __('Prueba') }}</h3>
+                    <div class="form-group mt-0 pb-0">
+                        @foreach (Prueba() as $item)
+                            <div class="form-check form-check-radio form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="checkbox" name="pruebas[]"
+                                        id="pruebas[]"
+                                        value="{{ $item->id }}">({{ $item->abreviacion_prueba }}){{ $item->nombre_prueba }}
+                                    <span class="form-check-sign">
+                                        <span class="check"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <h3 class="text-center text-warning mt-1">{{ 'Fugas' }}</h3>
+                    <div class="form-group mt-0 pb-0">
+                        @foreach (Fuga() as $item)
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="radio" name="fuga_id" id="fuga_id" onclick="changeFuga(event)"
+                                        value="{{ $item->id }}">({{ $item->abreviacion_fuga }}){{ $item->nombre_fuga }}
+                                    <span class="circle">
+                                        <span class="check"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div id="cambioExtintirNuevo" class="form-group d-none">
+                        <h3 class="text-center text-warning mt-1">{{ '¿Cambio por extintor nuevo?' }}</h3>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="cambioExtintirNuevo" id="ask_nuevo_extintor_1" value="NO" required>
+                                NO
+                                <span class="circle">
+                                    <span class="check"></span>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="cambioExtintirNuevo" id="ask_nuevo_extintor_2" value="SI">SI
+                                <span class="circle">
+                                    <span class="check"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-3 pb-0">
+                        <label for="observacion">{{ __('Observación:') }}</label>
+                        <input type="text" class="form-control" id="observacion" name="observacion" maxlength="100" placeholder="Digite...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer pt-0 border-0">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Salir</button>
+                <button type="submit" class="btn btn-danger" id="BtnGuardarCerrarOrder" onclick="guardarActividad(true)">Guardar y Cerrar Orden</button>
+                <button type="submit" class="btn btn-primary" id="BtnGuardar" onclick="guardarActividad(false)">Guardar</button>
             </div>
         </div>
     </div>
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Registro de daño de etiquete</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ url('/observacion') }}">
-                        {{ csrf_field() }}
-                        <div class="form-group">
-                            <label for="nro_extintor">{{ __('N° referencia') }}</label>
-                            <input type="number" class="form-control" id="numero" required name="numero"
-                                value="{{ $id }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="nro_extintor">{{ __('N° etiqueta') }}</label>
-                            <input type="number" value="{{ $primerTiquete }}" class="form-control"
-                                id="numero_etiqueta" required name="nro_extintor">
-                        </div>
 
-                        <div class="form-group">
-                            <label for="nro_extintor">{{ __('Motivo') }}</label>
-                            <textarea id="motivo" name="motivo" class="md-textarea form-control" rows="3"></textarea>
-                        </div>
-                        <div style="text-align:center; margin-top: 30px;">
-                            <button type="submit" class="btn btn-success">Guardar</button>
-                        </div>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -365,8 +323,7 @@
                     var producto_select =
                         '<option value="">---Seleccione unidad de medida---</option>'
                     for (var i = 0; i < data.length; i++)
-                        producto_select += '<option value="' + data[i].id + '">' + data[i]
-                        .cantidad_medida + '</option>';
+                        producto_select += '<option value="' + data[i].id + '">' + data[i].cantidad_medida + '</option>';
 
                     $("#capacidadProducto").html(producto_select);
 
@@ -382,65 +339,341 @@
             return true;
         }
 
-        let typingTimer;
-        const typingInterval = 1500;
+        function abrirModalRecarga(id_recarga, estado){
+            $('#recargaModal').modal('show');
+            limpiarCampos(estado);
+            consultandoRecarga(id_recarga);
+        }
 
-        function readCodeAnterior(event) {
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => {
-                document.getElementById("loading-overlay").style.display = "flex";
-                if (event.target.value != '') {
-                    const etiquetaAnterior = event.target.value;
-                    const myHeader = new Headers({
-                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
-                            "content"
-                        ),
-                        'Content-Type': 'application/json'
-                    });
+        function consultandoRecarga(id_recarga) {
+            // recarga/buscar-recarga/{id_recarga}
+            const myHeader = new Headers({
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                        "content"
+                    ),
+                    'Content-Type': 'application/json'
+                });
 
-                    fetch(`/recarga/buscar-etiqueta-anterior/${etiquetaAnterior}`, {
-                            method: "GET",
-                            headers: myHeader
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            } else {
-                                return response.json().then(errorData => {
-                                    // convirtiendo la respuesta a un string.
-                                    throw new Error(JSON.stringify(errorData));
+                fetch(`/recarga_2/buscar-recarga/${id_recarga}`, {
+                        method: "GET",
+                        headers: myHeader
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(errorData => {
+                                // convirtiendo la respuesta a un string.
+                                throw new Error(JSON.stringify(errorData));
+                            });
+                        }
+                    })
+                    .then(data => {
+                        const datos = data.data;
+                        if (datos) {
+
+                            // Aqui checked lo cambios de partes
+                            data.cambiopartes.forEach(valor => {
+                                const checkbox = document.querySelector(`input[name="cambioParte[]"][value="${valor.cambio_parte_id}"]`);
+                                if (checkbox) {
+                                    checkbox.checked = true; // Selecciona el checkbox
+                                }
+                            });
+
+                            // Aqui checked el listado de pruebas
+                            data.pruebas.forEach(valor => {
+                                const checkbox = document.querySelector(`input[name="pruebas[]"][value="${valor.prueba_id}"]`);
+                                if (checkbox) {
+                                    checkbox.checked = true; // Selecciona el checkbox
+                                }
+                            });
+
+                            const radioFuga = document.querySelectorAll('input[name="fuga_id"]');
+                            radioFuga.forEach(radio => {
+                                if (radio.value == datos?.fuga_id) {
+                                    radio.checked = true; // Selecciona el radio button con el valor deseado
+                                    document.getElementById('cambioExtintirNuevo').classList.remove('d-none');
+                                }
+                            });
+
+                            if (datos?.nuevo_extintor != null) {
+                                // Aqui checked el valor de nuevo_extintor
+                                const rdCambioExtintirNuevo = document.querySelectorAll('input[name="cambioExtintirNuevo"]');
+                                rdCambioExtintirNuevo.forEach(radio => {
+                                    if (radio.value == datos?.nuevo_extintor) {
+                                        radio.checked = true; // Selecciona el radio button con el valor deseado
+                                    }
                                 });
                             }
-                        })
-                        .then(data => {
-                            const datos = data.data;
-                            if (datos) {
-                                $('#agente').val(datos?.unidad_medida
-                                ?.sub_categoria_id); // Selecciona la opción con el valor "2"
-                                $("#agente").trigger("change"); // Disparando change
-                                setTimeout(() => {
-                                    document.getElementById("capacidadProducto").value = datos?.unidad_medida?.id;
-                                    document.getElementById("loading-overlay").style.display = "none";
-                                }, 500);
-                            } else {
-                                alert("No se encontraron resultado.");
-                                document.getElementById("agente").value = "";
-                                let producto_select =
-                                    '<option value="">---Seleccione unidad de medida---</option>';
-                                $("#capacidadProducto").html(producto_select);
-                                document.getElementById("nro_tiquete_anterior").value = "";
-                                document.getElementById("loading-overlay").style.display = "none";
-                            }
-                        })
-                        .catch(error => {
-                            const errorData = JSON.parse(error.message);
-                            // let errores = errorData.message + ":\n\n";
-                            console.log(errorData);
-                            loadingOverlay = "none";
-                        });
-                }
 
-            }, typingInterval);
+                            document.getElementById("recarga_id").value           = datos?.id;
+                            document.getElementById("nro_tiquete_anterior").value = datos?.nro_tiquete_anterior;
+                            document.getElementById("nro_tiquete_nuevo").value    = datos?.nro_tiquete_nuevo;
+                            document.getElementById("agente").value               = datos?.sub_categoria_id;
+                            document.getElementById('observacion').value          = datos?.observacion;
+
+                            const dataOpcionAgente = [
+                                {
+                                    value: datos.sub_categoria_id,
+                                    text: `${datos.nombre_subCategoria} - ${datos.nombre_categoria}`
+                                }
+                            ];
+
+                            addOptionsToSelect(`agente`, dataOpcionAgente, 'AGENTE');
+                            $(`#agente`).val(datos?.sub_categoria_id);
+
+                            const dataOpcionUnidadMedida = [
+                                    {
+                                    value: datos.unidades_medida_id,
+                                    text: `${datos.cantidad_medida} ${datos.unidad_medida}`
+                                }
+                            ];
+
+                            addOptionsToSelect(`capacidad_id`, dataOpcionUnidadMedida, 'UNIDADMEDIDA');
+
+                            const dataOpcionActividad = [
+                                    {
+                                    value: datos.activida_recarga_id,
+                                    text: `${datos.nombre_actividad}`
+                                }
+                            ];
+
+                            addOptionsToSelect(`activida_recarga_id`, dataOpcionActividad, 'ACTIVIDAD');
+
+                            $(`#capacidad_id`).val(datos?.unidades_medida_id);
+                            $(`#activida_recarga_id`).val(datos?.activida_recarga_id);
+
+                        } else {
+                            alert("No se encontraron resultado.");
+                            document.getElementById("loading-overlay").style.display = "none";
+                        }
+                    })
+                    .catch(error => {
+                        const errorData = JSON.parse(error.message);
+                        // let errores = errorData.message + ":\n\n";
+                        console.log(errorData);
+                        document.getElementById("loading-overlay").style.display = "none";
+                    });
+        }
+
+        async function addOptionsToSelect(selectId, options, tipoCampo) {
+            var $selectElement = $('#' + selectId);
+
+            // Limpiar las opciones existentes (opcional)
+            $selectElement.empty();
+            switch (tipoCampo) {
+                case 'AGENTE':
+                case 'UNIDADMEDIDA':
+                case 'ACTIVIDAD':
+                    options.forEach(function(option) {
+                        $selectElement.append($('<option>', {
+                            value: option.value,
+                            text: `${option.text}`
+                        }));
+                    });
+                    break;
+                }
+        }
+
+        function guardarActividad(cerrarOrden = false){
+
+            event.preventDefault();
+            const form = document.getElementById('formProduccion'); // Selecciona el formulario
+
+            if (!form.checkValidity()) { // Verifica si el formulario NO es  válido
+                form.reportValidity(); // Muestra los errores de validación nativos de HTML5
+                return
+            }
+
+            const arrListadoCambioPartes = Array.from(document.querySelectorAll('input[name="cambioParte[]"]:checked')).map(checkbox => checkbox.value);
+            if(arrListadoCambioPartes.length == 0){
+                alert('Debe seleccionar al menos un cambio de parte.');
+                return false;
+            }
+            const arrListadoPruebas = Array.from(document.querySelectorAll('input[name="pruebas[]"]:checked')).map(checkbox => checkbox.value);
+            if(arrListadoPruebas.length == 0){
+                alert('Debe seleccionar al menos una prueba.');
+                return false;
+            }
+
+            if (document.querySelector('input[name="cambioExtintirNuevo"]:checked')?.value == 'SI') {
+                if (document.getElementById('observacion').value == '') {
+                    alert('Debe ingresar una observación porque se trata de un cambio por un extintor nuevo.');
+                    return false;
+                }
+            }
+
+            document.getElementById("loading-overlay").style.display = "";
+
+            const myHeader = new Headers({
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+                    'Content-Type': 'application/json'
+                });
+
+                const data = {
+                    recarga_id          : document.getElementById('recarga_id').value,
+                    nro_tiquete_anterior: document.getElementById('nro_tiquete_anterior').value,
+                    nro_tiquete_nuevo   : document.getElementById('nro_tiquete_nuevo').value,
+                    cambioParte         : arrListadoCambioPartes,
+                    pruebas             : arrListadoPruebas,
+                    fuga_id             : document.querySelector('input[name="fuga_id"]:checked')?.value ?? null,
+                    observacion         : document.getElementById('observacion').value,
+                    nuevo_extintor      : document.querySelector('input[name="cambioExtintirNuevo"]:checked')?.value ?? 'NO',
+                    estado              : (cerrarOrden ? 0 : 1)
+                };
+
+                fetch(`/recarga`, {
+                        method: "POST",
+                        body    : JSON.stringify(data),
+                        headers : myHeader
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(errorData => {
+                                // convirtiendo la respuesta a un string.
+                                throw new Error(JSON.stringify(errorData));
+                            });
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            document.getElementById("loading-overlay").style.display = "none";
+                            if (confirm(data.message) == true) {
+                                location.reload();
+                            }else{
+                                location.reload();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        const errorData = JSON.parse(error.message);
+                        // let errores = errorData.message + ":\n\n";
+                        console.log(errorData);
+                        alert(errorData.errors[0]);
+                        document.getElementById("loading-overlay").style.display = "none";
+                    });
+        }
+
+        function limpiarCampos(estadoOrden = 1) {
+
+            document.getElementById("recarga_id").value ='';
+            document.getElementById("nro_tiquete_anterior").value ='';
+            document.getElementById("nro_tiquete_nuevo").value ='';
+            document.getElementById("agente").value ='';
+
+            const checkboxesCambioParte = document.querySelectorAll('input[name="cambioParte[]"]');
+
+            // Recorre cada checkbox y desmárcalo
+            checkboxesCambioParte.forEach(checkbox => {
+                checkbox.checked = false;
+                //Estado en 0 orden cerrada, no se permite modificar informacion
+                if (estadoOrden == 0) {
+                    checkbox.disabled = true;
+                }else{
+                    checkbox.disabled = false;
+                }
+            });
+
+            const checkboxesPruebas = document.querySelectorAll('input[name="pruebas[]"]');
+
+            // Recorre cada checkbox y desmárcalo
+            checkboxesPruebas.forEach(checkbox => {
+                checkbox.checked = false;
+                //Estado en 0 orden cerrada, no se permite modificar informacion
+                if (estadoOrden == 0) {
+                    checkbox.disabled = true;
+                }else{
+                    checkbox.disabled = false;
+                }
+            });
+
+            const radiosFugas = document.querySelectorAll('input[name="fuga_id"]');
+            radiosFugas.forEach(radio => {
+                radio.checked = false; // Desmarca todos los radio buttons del grupo
+                //Estado en 0 orden cerrada, no se permite modificar informacion
+                if (estadoOrden == 0) {
+                    radio.disabled = true;
+                }else{
+                    radio.disabled = false;
+                }
+            });
+
+            const radiosExtintorNuevo = document.querySelectorAll('input[name="cambioExtintirNuevo"]');
+            radiosExtintorNuevo.forEach(radio => {
+                radio.checked = false; // Desmarca todos los radio buttons del grupo
+                //Estado en 0 orden cerrada, no se permite modificar informacion
+                if (estadoOrden == 0) {
+                    radio.disabled = true;
+                }else{
+                    radio.disabled = false;
+                }
+            });
+
+            document.getElementById('cambioExtintirNuevo').classList.add('d-none');
+            document.querySelector('input[name="cambioExtintirNuevo"][value="NO"]').checked = true;
+
+            //Estado Cero "0" cerrada orden
+            if (estadoOrden == 0) {
+                document.getElementById('BtnGuardarCerrarOrder').style.display = 'none';
+                document.getElementById('BtnGuardar').style.display = 'none';
+                document.getElementById('observacion').disabled = true;
+            }else{
+                document.getElementById('BtnGuardarCerrarOrder').style.display = 'block';
+                document.getElementById('BtnGuardar').style.display = 'block';
+                document.getElementById('observacion').disabled = false;
+            }
+        }
+
+        function changeFuga(event){
+            if (event.target.value != undefined) {
+                document.getElementById('cambioExtintirNuevo').classList.remove('d-none');
+            }
+        }
+
+        function closeOrden(idOrden){
+            const myHeader = new Headers({
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+                    'Content-Type': 'application/json'
+                });
+
+                const data = {
+                    idIngreso          : idOrden
+                };
+
+                fetch(`/recarga/cerrar-orden`, {
+                        method: "POST",
+                        body    : JSON.stringify(data),
+                        headers : myHeader
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(errorData => {
+                                // convirtiendo la respuesta a un string.
+                                throw new Error(JSON.stringify(errorData));
+                            });
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            document.getElementById("loading-overlay").style.display = "none";
+                            if (confirm(data.message) == true) {
+                                location.reload();
+                            }else{
+                                location.reload();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        const errorData = JSON.parse(error.message);
+                        // let errores = errorData.message + ":\n\n";
+                        console.log(errorData);
+                        alert(errorData.errors[0]);
+                        document.getElementById("loading-overlay").style.display = "none";
+                    });
         }
     </script>
 @endsection

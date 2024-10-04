@@ -21,7 +21,7 @@
             <li class="nav-item{{ $activePage == 'recargas' ? ' active' : '' }}">
                 <a class="nav-link" href="{{ route('recarga') }}">
                     <i class="material-icons">reorder</i>
-                    <p>{{ __('Recargas') }}</p>
+                    <p>{{ __('Producción') }}</p>
                 </a>
             </li>
             {{-- @endcan --}}

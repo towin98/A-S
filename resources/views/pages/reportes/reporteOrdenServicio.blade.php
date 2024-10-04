@@ -7,11 +7,11 @@
                 <div class="container">
                     <div class="card">
 
-                        <div class="card-header card-header-text card-header-warning">
+                        <div class="card-header card-header-text card-header-warning" style="color: black">
                             <div class="card-text">
                                 <h4 class="card-title">{{ __('Buscar Orden de Servicio') }}</h4>
                             </div>
-                            <div class="form-group mt-4">
+                            <div class="form-group">
                                 <label class="px-2" for="id_orden_servicio">{{ __('Orden de Servicio') }}</label>
                                 <div class="d-flex">
                                     <div class="px-2 w-100">
@@ -20,7 +20,7 @@
                                     </div>
                                     <div class="ml-auto px-2">
                                         <button type="button" id="id_buscar_orden_servicio"
-                                            class="btn btn-success">Buscar</button>
+                                            class="btn btn-success mt-0">Buscar</button>
                                     </div>
                                 </div>
                             </div>
@@ -43,41 +43,41 @@
                                     <div class="row mb-2">
                                         <div class="col-md-4 col-12">
                                             <strong>Fecha Recepción: </strong>
-                                            <input type="text" id="id_fecha_recepcion" class="form-control" disabled>
+                                            <input type="text" id="id_fecha_recepcion" class="form-control limpiarCampos" disabled>
                                         </div>
                                         <div class="col-md-4 col-12">
                                             <strong>Fecha Entrega: </strong>
-                                            <input type="text" id="id_fecha_entrega" class="form-control" disabled>
+                                            <input type="text" id="id_fecha_entrega" class="form-control limpiarCampos" disabled>
                                         </div>
                                         <div class="col-md-4 col-12">
                                             <strong># Orden: </strong>
-                                            <input type="text" id="id_orden" class="form-control" disabled>
+                                            <input type="text" id="id_orden" class="form-control limpiarCampos" disabled>
                                         </div>
                                     </div>
 
                                     <div class="row my-2">
                                         <div class="col-md-4 col-12">
                                             <strong>Cliente: </strong>
-                                            <input type="text" id="id_cliente" class="form-control" disabled>
+                                            <input type="text" id="id_cliente" class="form-control limpiarCampos" disabled>
                                         </div>
                                         <div class="col-md-4 col-12">
                                             <strong>Nit: </strong>
-                                            <input type="text" id="id_nit" class="form-control" disabled>
+                                            <input type="text" id="id_nit" class="form-control limpiarCampos" disabled>
                                         </div>
                                         <div class="col-md-4 col-12">
                                             <strong>Dirección: </strong>
-                                            <input type="text" id="id_direccion" class="form-control" disabled>
+                                            <input type="text" id="id_direccion" class="form-control limpiarCampos" disabled>
                                         </div>
                                     </div>
 
                                     <div class="row my-2">
                                         <div class="col-md-4 col-12">
                                             <strong>Contacto: </strong>
-                                            <input type="text" id="id_contacto" class="form-control" disabled>
+                                            <input type="text" id="id_contacto" class="form-control limpiarCampos" disabled>
                                         </div>
                                         <div class="col-md-4 col-12">
                                             <strong>Email: </strong>
-                                            <input type="text" id="id_email" class="form-control" disabled>
+                                            <input type="text" id="id_email" class="form-control limpiarCampos" disabled>
                                         </div>
                                     </div>
                                     <br>

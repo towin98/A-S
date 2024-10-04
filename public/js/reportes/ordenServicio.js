@@ -95,7 +95,7 @@ boton_buscar_orden_servicio.addEventListener("click", function(e) {
 });
 
 function limpiarCampos(){
-    let nodeListInputReporte = document.querySelectorAll('.sinbordeInput');
+    let nodeListInputReporte = document.querySelectorAll('.limpiarCampos');
     for (let i = 0; i < nodeListInputReporte.length; i++) {
         nodeListInputReporte[i].value = '';
     }
