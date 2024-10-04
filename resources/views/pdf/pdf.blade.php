@@ -1,8 +1,6 @@
-<?php
-$medidaTicket = 250;
-?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +9,11 @@ $medidaTicket = 250;
     <style>
         * {
             font-size: 12px;
-            font-family: 'DejaVu Sans', serif;
+            font-family: monospace;
         }
 
         h1 {
-            font-size: 18px;
+            font-size: 44px;
         }
 
         .ticket {
@@ -28,8 +26,7 @@ $medidaTicket = 250;
         }
 
         .ticket {
-            width: <?php echo $medidaTicket ?>px;
-            max-width: <?php echo $medidaTicket ?>px;
+            width: 250px;
         }
 
         img {
@@ -55,37 +52,36 @@ $medidaTicket = 250;
 
 <body>
     <div class="ticket centrado">
-        <h1 style="font-size: 250%">A&S</h1>
-        <?php echo "Nit: 901.260.922-9" ?><br/>
-        <?php echo "ASESORIAS Y SUMINISTROS DEL SUR"  ?> <br/>
-        <?php echo "Telefono: 3162428919 - 3162732918" ?><br/>
-        <?php echo "Carrera 5 #3-153 sur interior 3 EDS Neiva gas" ?><br/>
-        <br/>
-        <small><strong>No. referencia: </strong></small><?php echo $ingreso->id ?><br/>
-        <small><strong>Fecha Ingreso: </strong></small><?php echo $ingreso->fecha_recepcion ?><br/>
-        <small><strong>Fecha Entrega: </strong></small><?php echo $ingreso->fecha_entrega ?><br/>
-        <small><strong>Cliente: </strong></small><?php echo $ingreso->encargado->nombre_encargado ?><br/>
-
-        <br/>
-        <br/>
+        <h1 style="font-size: 44px !important;">A&S</h1>
+        {{ 'Nit: 901.260.922-9' }}<br />
+        {{ 'ASESORIAS Y SUMINISTROS DEL SUR' }}<br />
+        {{ 'Telefono: 3162428919 - 3162732918' }}<br />
+        {{ 'Carrera 5 #3-153 sur interior 3 EDS Neiva gas' }}<br />
+        <br />
+        <small><strong>No. referencia: </strong></small>{{ $ingreso->id }}<br />
+        <small><strong>Fecha Ingreso: </strong></small>{{ $ingreso->fecha_recepcion }}<br />
+        <small><strong>Fecha Entrega: </strong></small>{{ $ingreso->fecha_entrega }}<br />
+        <small><strong>Cliente: </strong></small>{{ $ingreso->encargado->nombre_encargado }}<br />
+        <br />
+        <br />
     </div>
     <div class="ticket">
-        @foreach($data as $item)
-            <small><strong>Numero de extintores: </strong></small><?php echo $item->numero_extintor ?><br/>
-            <small><strong>Actividad: </strong></small><?php echo $item->nombre_actividad ?><br/>
-            <small><strong>Unidad de Medida: </strong></small><?php echo $item->unidad_medida ?><br/>
-            <small><strong>Cantidad de Medida: </strong></small><?php echo $item->cantidad_medida ?><br/>
-            <?php echo "---------------------------------" ?><br/>
+        @foreach ($data as $item)
+            <small><strong>Numero de extintores: </strong></small>{{ $item->cantidad }}<br />
+            <small><strong>Actividad: </strong></small>{{ $item->nombre_actividad }}<br />
+            <small><strong>Categoria: </strong></small> {{ $item->categoria }}<br />
+            <small><strong>Cantidad de Medida: </strong></small>{{ $item->cantidad_medida }} {{ $item->unidad_medida }}<br />
+            {{ '---------------------------------' }}<br />
         @endforeach
     </div>
     <div class="ticket centrado">
-        <small><strong>Colaborador: </strong></small><?php echo $ingreso->usuario->nombre . " " . $ingreso->usuario->apellido ?><br/>
+        <small><strong>Colaborador: </strong></small>{{ $ingreso->usuario->nombre }}
+        {{ $ingreso->usuario->apellido }}<br />
     </div>
     <div class="ticket centrado" style="margin-left: 70px; margin-top:20px;">
-
         <?php echo  DNS1D :: getBarcodeHTML (  $ingreso->id , 'C39+' , 1.5 , 33 );?>
     </div>
 
-
 </body>
+
 </html>

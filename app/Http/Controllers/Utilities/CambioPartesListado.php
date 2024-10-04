@@ -6,8 +6,19 @@ use App\Models\{listadoPrueba, listadoRecarga};
 
 trait CambioPartesListado
 {
-    public function saveListChangeParts($id, $listadoPartes)
+    /**
+     * Metodo que guarda listado de cambio de partes de extintor.
+     *
+     * @param integer $id De la recarga
+     * @param Array $listadoPartes Array de partes de extintor
+     * @return void
+     */
+    public function saveListChangeParts(int $id, array $listadoPartes)
     {
+
+        //Eliminando listado de partes de extintor.
+        listadoRecarga::where("recarga_id", $id)->delete();
+
         if (isset($listadoPartes)) {
             foreach ($listadoPartes as $key => $value) {
                 $nuevoListado =  new listadoRecarga();

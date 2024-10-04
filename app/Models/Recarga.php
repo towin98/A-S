@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Recarga extends Model
 {
     protected $table = 'recargas';
-    protected $fillable = ['nro_tiquete_anterior', 'nro_tiquete_nuevo', 'nro_extintor', 'agente', 'ingreso_recarga_id', 'usuario_recarga_id', 'activida_recarga_id', 'cambio_parte_id', 'prueba_id', 'fuga_id', 'observacion'];
+    protected $fillable = ['nro_tiquete_anterior', 'nro_tiquete_nuevo', 'nro_extintor', 'capacidad_id', 'agente', 'ingreso_recarga_id', 'usuario_recarga_id', 'activida_recarga_id', 'cambio_parte_id', 'prueba_id', 'fuga_id', 'observacion', 'ingreso_actividad', 'nuevo_extintor', 'estado'];
 
     static $rules = [
         'nro_tiquete_anterior'    => 'nullable|numeric',

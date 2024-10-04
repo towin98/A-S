@@ -74,7 +74,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('prueba/{id}', 'Prueba\PruebaController@update')->where('id', '[0-9]+');
     Route::delete('prueba/{id}', 'Prueba\PruebaController@destroy')->where('id', '[0-9]+');
 
-    #Fufa
+    #Fuga
     Route::get('fuga', 'Fuga\FugaController@index')->name('fuga');
     Route::post('fuga', 'Fuga\FugaController@store');
     Route::put('fuga/{id}', 'Fuga\FugaController@update')->where('id', '[0-9]+');
@@ -98,14 +98,22 @@ Route::group(['middleware' => 'auth'], function () {
 
     #Ingreso
     Route::get('ingreso/{id}', 'Ingreso\IngresoController@index')->name('ingreso');
-    Route::put('ingresoL/{id}', 'Ingreso\IngresoController@update')->where('id', '[0-9]+');
+    Route::put('ingresoL/{id}', 'Ingreso\IngresoController@update')->where('id', '[0-9]+')->name('guardarIngreso');
     Route::get('listIngreso', 'Ingreso\IngresoController@getEstadoIngreso')->name('listIngreso');
     Route::put('ingreso/{id}', 'Ingreso\IngresoController@actualizarI')->where('id', '[0-9]+');
-    Route::put('totalExt/{id}', 'Ingreso\IngresoController@updateTotalExtintor')->where('id', '[0-9]+');
-    Route::get('ingresoL/{id}', 'Ingreso\IngresoController@listadoIngreso')->where('id', '[0-9]+');
-    Route::get('ingresoact/{id}', 'Ingreso\IngresoController@cambioEstado')->where('id', '[0-9]+');
+
+    // Metodo que cambiaba el numero de extintores
+    // Route::put('totalExt/{id}', 'Ingreso\IngresoController@updateTotalExtintor')->where('id', '[0-9]+');
+
+    // Vista para guardar listado de extintores
+    // Route::get('ingresoL/{id}', 'Ingreso\IngresoController@listadoIngreso')->where('id', '[0-9]+');
+
+    // Vista para cambiar el estado de un ingreso y crear numero tiquetes para extintores
+    // Route::get('ingresoact/{id}', 'Ingreso\IngresoController@cambioEstado')->where('id', '[0-9]+');
+
+
     Route::get('imprimirPdf/{id}', 'Ingreso\IngresoController@imprimirTiquete')->where('id', '[0-9]+');
-    Route::get('ticket/{idReferencia}', 'Ingreso\IngresoController@ticket')->where('idReferencia', '[0-9]+');
+    Route::get('ticket/{idReferencia}', 'Ingreso\IngresoController@ticket')->where('idReferencia', '[0-9]+')->name('ticket.show');
     Route::get('listarRegistroIngreso/{id}', 'Ingreso\IngresoController@listadoPorIngreso')->where('id', '[0-9]+');
 
     #Reportes
@@ -119,9 +127,13 @@ Route::group(['middleware' => 'auth'], function () {
     #ListadoIngreso
     Route::get('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@index')->name('listadoIngreso');
     Route::get('verListado', 'ListadoIngreso\ListadoIngresoController@verListado');
-    Route::get('listIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@ListadoIngreso')->where('id', '[0-9]+');
 
-    Route::post('listadoIngreso', 'ListadoIngreso\ListadoIngresoController@store');
+    // Vista que muestra total de extintores despues de haber ingresado el listado de extintores
+    // Route::get('listIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@ListadoIngreso')->where('id', '[0-9]+');
+
+    // backend para guardar listado de extintores
+    // Route::post('listadoIngreso', 'ListadoIngreso\ListadoIngresoController@store');
+
     Route::put('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@update')->where('id', '[0-9]+');
     Route::delete('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@destroy')->where('id', '[0-9]+');
     Route::delete('ingresoListado/{id}', 'ListadoIngreso\ListadoIngresoController@eliminarIngresoListado')->where('id', '[0-9]+');
@@ -137,10 +149,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('recarga', 'Recarga\RecargaController@index')->name('recarga');
     Route::get('recarga/{id}', 'Recarga\RecargaController@setRecargaListado');
     Route::get('recarga/buscar-etiqueta-anterior/{etiquetaAnterior}', 'Recarga\RecargaController@searchEtiquetaAnterior');
+    Route::post('recarga/cerrar-orden', 'Recarga\RecargaController@cerrarOrden');
+
+    //Buscando recarga por id
+    Route::get('recarga_2/buscar-recarga/{id_recarga}', 'Recarga\RecargaController@buscarRecarga');
+
     Route::post('recarga', 'Recarga\RecargaController@store');
     Route::put('recarga/{id}', 'Recarga\RecargaController@update')->where('id', '[0-9]+');
     Route::delete('recarga/{id}', 'Recarga\RecargaController@destroy')->where('id', '[0-9]+');
-    Route::delete('recarga/eliminar-extintor-orden/{id}', 'Recarga\RecargaController@eliminarExtintorOrden')->where('id', '[0-9]+');
+
+    //No se pueden eliminar recargas
+    // Route::delete('recarga/eliminar-extintor-orden/{id}', 'Recarga\RecargaController@eliminarExtintorOrden')->where('id', '[0-9]+');
 
     #Listado recarga
     Route::get('infoRecarga/{id}', 'Recarga\RecargaController@informacionListadoRecarga')->where('id', '[0-9]+');
@@ -153,6 +172,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('hocol', 'Hocol\HocolController@index')->name('hocol');
     Route::post('hocol', 'Hocol\HocolController@store');
     Route::get('export', 'Hocol\HocolController@export')->name('export.hocol');
+
+    #Consultando la lista de agentes.
+    Route::get('buscar-agentes', 'SubCategoria\SubCategoriaController@buscarAgentes');
+
+    #Consultando la lista de actividades.
+    Route::get('consulta-actividades', 'Actividad\ActividadesController@actividades');
 });
 
 Route::group(['middleware' => 'auth'], function () {

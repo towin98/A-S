@@ -34,8 +34,6 @@ class InformacionController extends Controller
                 }else{
                     return back()->with('mensaje', 'No se han encontrado datos con estas credenciales');
                 }
-
-
         }else{
             return back();
         }

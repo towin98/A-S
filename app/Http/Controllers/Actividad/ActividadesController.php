@@ -47,4 +47,32 @@ class ActividadesController extends Controller
             return back()->with('errors', 'No se puedo eliminar este registro');
         }
     }
+
+    /**
+     * Consultando actividades.
+     *
+     * @return JsonResponse
+     */
+    public function actividades(){
+        try {
+            $arrData = Actividad::select([
+                    'id',
+                    'nombre_actividad',
+                    'abreviacion_actividad'
+                ])
+                ->get();
+
+            return response()->json([
+                "data" => $arrData
+            ],200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => [
+                    'No se encontraron registros'
+                ]
+            ], 404);
+        }
+    }
 }

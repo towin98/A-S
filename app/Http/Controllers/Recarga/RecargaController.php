@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\{Ingreso, listadoPrueba, listadoRecarga, NumeroTiquete, Recarga, UnidadMedida};
 use App\Http\Controllers\Utilities\{CambioPartesListado, ConsultaRecarga, FugaListado};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use PhpParser\Node\Expr\Cast\String_;
 
@@ -34,20 +35,23 @@ class RecargaController extends Controller
         //return view('pages.recarga.recarga');
     }
 
+    /**
+     * Metodo muestra listado de extintores en el módulo de producción
+     *
+     * @param [type] $id Id del ingreso
+     * @return void
+     */
     public function setRecargaListado($id)
     {
         $listadoRecarga = $this->listadoRecarga($id);
 
-        $primerTiquete = $this->NumeroEtiqueta($id);
-        $clienteS = $this->NumeroSeriaCliente($id);
-        $datos = $this->InformacionIngreso($id);
-        if (!$primerTiquete) {
-            $advertencia =  'Numero de etiquetas terminadas';
-            $primerTiquete = 000;
-            return view('pages.recarga.verListadoIngreso', compact('datos', 'id', 'clienteS', 'primerTiquete', 'advertencia', 'listadoRecarga'));
-        }
-        $primerTiquete = $primerTiquete->numero_tiquete;
-        return view('pages.recarga.verListadoIngreso', compact('datos', 'id', 'clienteS', 'primerTiquete', 'listadoRecarga'));
+        $estadoOrdenServicio = Recarga::select('estado')
+            ->where('ingreso_recarga_id', $id)
+            ->first();
+
+        $dataCliente    = $this->DatosClienteOrden($id);
+        $datos          = $this->InformacionIngreso($id);
+        return view('pages.recarga.verListadoIngreso', compact('datos', 'id', 'dataCliente', 'listadoRecarga', 'estadoOrdenServicio'));
     }
 
     /**
@@ -60,9 +64,10 @@ class RecargaController extends Controller
         try {
             $data = Recarga::select([
                     'id',
+                    'ingreso_recarga_id',
                     'capacidad_id'
                 ])
-                ->with('UnidadMedida')
+                ->with('UnidadMedida', 'RecargaIngreso.Encargado')
                 ->where('nro_tiquete_nuevo', $etiquetaAnterior)
                 ->first();
 
@@ -81,100 +86,113 @@ class RecargaController extends Controller
 
     public function store(Request $request)
     {
-        /**
-         * Para convertir array en string $partes = join(',', $request->cambioParte);
-         * para pasar esos string a array $ArrayPartes = (explode(',', $partes));
-         */
+        $arrErrores = [];
 
-        if ($request->nro_extintor > 1) {
-            return back()->with('advertencia', 'Solo se puede hacer el registro para un extintor.');
+        if (!$request->filled('recarga_id')) {
+            $arrErrores[] = "La recarga es requerida";
         }
 
-        // Validando que no exista ya número de extintor o etiqueta a asignar.
-        $numeroTicket = NumeroTiquete::select('id')
-            ->where('numero_tiquete', $request->nro_tiquete_nuevo)
-            ->whereNotNull('recarga_id')
-            ->first();
-        if ($numeroTicket) {
-            return back()->with('advertencia', "La etiqueta [$request->nro_tiquete_nuevo] ya se encuentra asignada.");
+        if (!$request->filled('nro_tiquete_nuevo')) {
+            $arrErrores[] = "El Número de tiquete anterior es requerido.";
         }
 
-        $recargaTicket = Recarga::select('id')
-            ->where('nro_tiquete_anterior', $request->nro_tiquete_anterior)
-            ->where('nro_tiquete_anterior', '!=', null)
-            ->where('nro_tiquete_anterior', '!=', '')
-            ->first();
-        if ($recargaTicket) {
-            return back()->with('advertencia', "El N° de la tiqueta anterior[$request->nro_tiquete_anterior] ya se encuentra asignada.");
+        if (!isset($request->cambioParte) || !is_array($request->cambioParte)) {
+            $arrErrores[] = "Error en el envio del parámetro cambio de partes.";
         }
 
-        // Validando ingresos con recargar.
-        $ingreso = Ingreso::select(['id', 'numero_total_extintor'])
-            ->where('id', $request->ingreso_recarga_id)
-            ->first();
+        if (!isset($request->pruebas) || !is_array($request->pruebas)) {
+            $arrErrores[] = "Error en el envio del parámetro listado de pruebas.";
+        }
 
-        $nRecargas = Recarga::select('id')
-            ->where('ingreso_recarga_id', $request->ingreso_recarga_id)
-            ->count();
-
-        if ($nRecargas >= $ingreso->numero_total_extintor) {
-            return back()->with('advertencia', "Para la Orden de servicio [$ingreso->id] se han completado todas las recargas.");
+        if (count($arrErrores) > 0) {
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => $arrErrores
+            ], 422);
         }
 
         try {
-            $recarga = new Recarga();
 
-            $validador = Validator::make($request->all(), $recarga::$rules, $recarga::$messagesRules);
-            if ($validador->fails()) {
-                // El validador ha encontrado errores
-                $errores = $validador->errors();
-                return back()->withErrors($errores);
+            // Validando que no exista ya número de extintor o etiqueta a asignar.
+            $numeroTicket = NumeroTiquete::select('id')
+                ->where('numero_tiquete', $request->nro_tiquete_nuevo)
+                ->whereNull('recarga_id')
+                ->first();
+            if ($numeroTicket) {
+                $arrErrores[] = "La etiqueta [$numeroTicket->nro_tiquete_nuevo] ya se encuentra asignada.";
+                // return back()->with('advertencia', "La etiqueta [$request->nro_tiquete_nuevo] ya se encuentra asignada.");
             }
 
-            $recarga->nro_tiquete_anterior  = $request->nro_tiquete_anterior;
-            $recarga->nro_tiquete_nuevo     = $request->nro_tiquete_nuevo;
-            $recarga->nro_extintor          = $request->nro_extintor;
-            $recarga->capacidad_id          = $request->capacidad_id;
-            $recarga->agente                = $request->agente;
-            $recarga->usuario_recarga_id    = $request->usuario_recarga_id;
-            $recarga->ingreso_recarga_id    = $request->ingreso_recarga_id;
-            $recarga->activida_recarga_id   = $request->activida_recarga_id;
-            $recarga->fuga_id               = $request->fuga_id;
-            $recarga->observacion           = $request->observacion;
-            $recarga->save();
+            $recargaTicket = Recarga::select('id')
+                ->where('id', '!=', $request->recarga_id)
+                ->where('nro_tiquete_anterior', $request->nro_tiquete_anterior)
+                ->where('nro_tiquete_anterior', '!=', null)
+                ->where('nro_tiquete_anterior', '!=', '')
+                ->first();
+            if ($recargaTicket) {
+                $arrErrores[] = "El N° de la tiqueta anterior[$request->nro_tiquete_anterior] ya se encuentra asignada, por favor corrija.";
+            }
 
-            // Asignando etiqueta nueva a extintor.
-            $this->etiqueta($recarga->id, $request->nro_tiquete_nuevo, $request->ingreso_recarga_id);
-            $this->saveListChangeParts($recarga->id, $request->cambioParte);
-            $this->saveLeakagelist($recarga->id, $request->prueba_id);
-            return back()->with('exito', 'Se guardo el registro correctamente');
+            if (count($arrErrores) > 0) {
+                return response()->json([
+                    'message' => 'Error de Validación de Datos',
+                    'errors'  => $arrErrores
+                ], 422);
+            }
 
+            Recarga::where('id', $request->recarga_id)->update([
+                "nro_tiquete_anterior"  => $request->nro_tiquete_anterior,
+                "usuario_recarga_id"    => Auth::user()->id, // Tecnico que realizo el procedimiento
+                "fuga_id"               => $request->fuga_id,
+                "observacion"           => $request->observacion,
+                "ingreso_actividad"     => 1, // Indica se ha procesado,
+                "nuevo_extintor"        => $request->nuevo_extintor,
+                "estado"                => $request->estado
+            ]);
+
+            $this->saveListChangeParts($request->recarga_id, $request->cambioParte);
+            $this->saveLeakagelist($request->recarga_id, $request->pruebas);
+
+            return response()->json([
+                "message" => "Registro exitoso"
+            ],201);
         } catch (Exception $e) {
-            return back()->with('advertencia', 'No se pudo crear el registro: '. $e);
+            return response()->json([
+                'message' => 'Error inesperado en el servidor',
+                'errors'  => [
+                    "No se pudo crear el registro:" . $e
+                ]
+            ], 500);
         }
     }
 
     public function getUnidad($id)
     {
-        return UnidadMedida::select('unidades_medida.id', 'unidades_medida.cantidad_medida')
+        return UnidadMedida::select([
+                'unidades_medida.id',
+                'unidades_medida.cantidad_medida',
+                'unidad_medida'
+            ])
             ->join('subcategorias', 'unidades_medida.sub_categoria_id', '=', 'subcategorias.id')
-            ->where('unidades_medida.sub_categoria_id', '=', $id)->get();
+            ->where('unidades_medida.sub_categoria_id', '=', $id)
+            ->get();
     }
 
-    private function etiqueta($idRecarga, $numeroEtiqueta, $ingresoRecargaId = null)
-    {
-        $actualizarEtiqueta = NumeroTiquete::where('numero_tiquete', $numeroEtiqueta)->whereNull('recarga_id')->first();
-        if ($actualizarEtiqueta) {
-            $actualizarEtiqueta->recarga_id = $idRecarga;
-            $actualizarEtiqueta->update();
-        }else{
-            // Si no existe es porque el numero de ticket el usuario lo ingreso manual.
-            $actualizarEtiqueta = NumeroTiquete::where('ingreso_id', $ingresoRecargaId)->whereNull('recarga_id')->first();
-            $actualizarEtiqueta->numero_tiquete = $numeroEtiqueta;
-            $actualizarEtiqueta->recarga_id = $idRecarga;
-            $actualizarEtiqueta->update();
-        }
-    }
+    //UTLIMA MODIDICACION 2024/08/00 - REINGENIERIA RECARGAS - CRISTIAN SEGURA
+    // private function etiqueta($idRecarga, $numeroEtiqueta, $ingresoRecargaId = null)
+    // {
+    //     $actualizarEtiqueta = NumeroTiquete::where('numero_tiquete', $numeroEtiqueta)->whereNull('recarga_id')->first();
+    //     if ($actualizarEtiqueta) {
+    //         $actualizarEtiqueta->recarga_id = $idRecarga;
+    //         $actualizarEtiqueta->update();
+    //     }else{
+    //         // Si no existe es porque el numero de ticket el usuario lo ingreso manual.
+    //         $actualizarEtiqueta = NumeroTiquete::where('ingreso_id', $ingresoRecargaId)->whereNull('recarga_id')->first();
+    //         $actualizarEtiqueta->numero_tiquete = $numeroEtiqueta;
+    //         $actualizarEtiqueta->recarga_id = $idRecarga;
+    //         $actualizarEtiqueta->update();
+    //     }
+    // }
 
     /**Para obtener la informacion de la recargas que pertenecen a un ingreso */
     public function informacionListadoRecarga($id)
@@ -210,6 +228,86 @@ class RecargaController extends Controller
             return back()->with('exito_eliminar_extintor_orden', 'Se elimino exitosamente.');
         } catch (Exception $e) {
             return back()->with('advertencia_eliminar_extintor_orden', 'Error inesperado al eliminar registro.'.$e);
+        }
+    }
+
+    /**
+     * Consultando recarga por llave Primary key
+     *
+     * @param [type] $id_recarga
+     * @return void
+     */
+    public function buscarRecarga($id_recarga){
+        try {
+
+            //Consultando listado de cambio de partes extintor
+            $listadoCambioPartes = listadoRecarga::select('cambio_parte_id')
+                ->where('recarga_id', $id_recarga)
+                ->get();
+
+            //Consultando listado de pruebas realizadas a extintor
+            $listadoPruebas = listadoPrueba::select('prueba_id')
+                ->where('recarga_id', $id_recarga)
+                ->get();
+
+            $data = $this->consultandoRecarga($id_recarga);
+
+            return response()->json([
+                "data"          => $data,
+                "cambiopartes"  => $listadoCambioPartes,
+                "pruebas"       => $listadoPruebas
+            ],200);
+
+        } catch (Exception $ex) {
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => [
+                    'No se encontraron registros'.$ex
+                ]
+            ], 404);
+        }
+    }
+
+    public function cerrarOrden(Request $request){
+
+        try {
+            $arrErrores = [];
+
+            $nRecargas = Recarga::select('id')
+                ->where('ingreso_recarga_id', $request->idIngreso)
+                ->where('ingreso_actividad', 0)
+                ->get()
+                ->count();
+
+            if ($nRecargas > 0) {
+                $arrErrores[] = "Debe completar el ingreso de la totalidad de actividades de los extintores.";
+            }
+
+            if (count($arrErrores) > 0) {
+                return response()->json([
+                    'message' => 'Error de Validación de Datos',
+                    'errors'  => $arrErrores
+                ], 422);
+            }
+
+            //Aqui cambio el estado de la orden-recarga en 0 porque para indicar que se cerro la orden
+            Recarga::select('id')
+            ->where('ingreso_recarga_id', $request->idIngreso)
+            ->update([
+                'estado' => 0
+            ]);
+
+            return response()->json([
+                "message" => "La orden de servicio ". $request->idIngreso . " se ha cerrado."
+            ],201);
+
+        } catch (Exception $ex) {
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => [
+                    'No se encontraron registros'.$ex
+                ]
+            ], 404);
         }
     }
 }

@@ -2,143 +2,82 @@
 
 namespace App\Http\Controllers\Ingreso;
 
-use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\Controller;
+use PDF;
+use Exception;
+use App\Models\Recarga;
 use App\Models\Ingreso;
-use App\Models\ListadoIngreso;
-use App\Models\NumeroTiquete;
 use Illuminate\Http\Request;
+use App\Models\NumeroTiquete;
+use App\Models\ListadoIngreso;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Utilities\ImprimirTicket;
+use App\Http\Controllers\Utilities\CambioPartesListado;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike24\Escpos\PrintConnectors\FilePrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\compaj;
 use Mike42\Escpos\EscposImage;
-use App\Http\Controllers\Utilities\ImprimirTicket;
-use Exception;
-use PDF;
 
 class IngresoController extends Controller
 {
-    use ImprimirTicket;
+    use ImprimirTicket, CambioPartesListado;
 
-    public function ticket($id_referencia) {
-        $numeroEtiqueta = NumeroTiquete::all()->last();
-
+    /**
+     * Metodo que genera ticket con resulmen de ingreso.
+     *
+     * @param string $id_referencia
+     * @return void
+     */
+    public function ticket(string $id_referencia) {
         $actingreso = Ingreso::where('id', $id_referencia)->first();
-        /**
-         * Valida la informacion y crea los nuevos tickets para el ingreso
-         */
-
-
-        for ($i = 1; $i <= $actingreso->numero_total_extintor; $i++) {
-            $nuevaEtiqueta = new NumeroTiquete();
-            $nuevaEtiqueta->numero_tiquete = $numeroEtiqueta->numero_tiquete + $i;
-            $nuevaEtiqueta->ingreso_id = $actingreso->id;
-            $nuevaEtiqueta->save();
-        }
-        /**
-         * Cambia el estado del ingreso y guarda el registro
-         */
-
-        /**
-         * Ingresa a imprimir la factura
-         */
-
-        /*   $ingreso = Ingreso::where('numero_referencia', $id_referencia)
-                ->with('Usuario', 'Encargado')
-                ->first();
-
-                $nombreImpresora = ("SAT 22TUS");
-                $connector = new WindowsPrintConnector($nombreImpresora);
-                $impresora = new Printer($connector);
-
-                $data = $this->obtenerListadoIngreso($id_referencia); */
-        //return $data;
-        /*
-                $impresora->setJustification(Printer::JUSTIFY_CENTER);
-                $logo2 =  EscposImage::load("C:\Users\hp\Documents\GitHub\ProyectoExtintores\public\barra.png", false);
-                $logo = EscposImage::load("C:\Users\hp\Documents\GitHub\ProyectoExtintores\public\material\img\imprimir.gif", false);
-                $impresora->bitImage($logo2);
-                $impresora->setTextSize(3, 3);
-                $impresora->text("A & S\n");
-                $impresora->setTextSize(2, 2);
-                $impresora->text("ASESORIAS Y SUMINISTROS DEL SUR\n");
-                $impresora->setTextSize(1, 1);
-                $impresora->text("Carrera 5 #3-153 sur interior 3 EDS Neiva de gas");
-                $impresora->text("Fecha de Ingreso: ");
-                $impresora->text($ingreso->fecha_recepcion . "\n");
-                $impresora->feed(2);
-                $impresora->text("Cliente: ");
-                $impresora->text(($ingreso->encargado->nombre_encargado) . "\n");
-                $impresora->text("Numero de referencia: ");
-                $impresora->text($ingreso->id . "\n");
-                $impresora->feed(1);
-        */
-        /*   foreach( $data as $item){
-                    $impresora->setJustification(Printer::JUSTIFY_LEFT);
-                    $impresora->text("Numero de Extintores:  ");
-                    $impresora->text($item->numero_extintor. "\n");
-                    $impresora->text("Actividad           :  ");
-                    $impresora->text($item->nombre_actividad. "\n");
-                    $impresora->text("Unidad de medida    :  ");
-                    $impresora->text($item->unidad_medida. "\n");
-                    $impresora->text("Cantidad de Media   :  ");
-                    $impresora->text($item->cantidad_medida.  "\n");
-                    $impresora->text("------------------------------------------------");
-                };
-                $impresora->setJustification(Printer::JUSTIFY_CENTER);
-                $impresora->text("Colaborador: ");
-                $impresora->text(($ingreso->usuario->nombre . " " . $ingreso->usuario->apellido) . "\n");
-                $impresora->feed(3);
-                $impresora->cut();
-                $impresora->close(); */
-        /*
-
-                return redirect('listIngreso');
-            } else {
-                return back();
-            } */
 
         if ($actingreso) {
-
             $ingreso = Ingreso::where('numero_referencia', $id_referencia)
                 ->with('Usuario', 'Encargado')
                 ->first();
 
-            $data = $this->obtenerListadoIngreso($id_referencia);
+            $data = ListadoIngreso::select(
+                    'listado_ingreso.unidad_medida_id',
+                    'listado_ingreso.actividad_id',
+                    DB::raw('MAX(listado_ingreso.id) as id'),
+                    DB::raw('MAX(listado_ingreso.created_at) as created_at'),
+                    DB::raw('MAX(listado_ingreso.numero_extintor) as numero_extintor'),
+                    DB::raw('MAX(actividades.nombre_actividad) as nombre_actividad'),
+                    DB::raw('MAX(subcategorias.nombre_subCategoria) as categoria'),
+                    DB::raw('MAX(unidades_medida.unidad_medida) as unidad_medida'),
+                    DB::raw('MAX(unidades_medida.cantidad_medida) as cantidad_medida'),
+                    DB::raw('SUM(listado_ingreso.numero_extintor) as cantidad')
+                )
+                ->where('ingreso_id', $id_referencia)
+                ->join('actividades', 'listado_ingreso.actividad_id', '=', 'actividades.id')
+                ->join('unidades_medida', 'listado_ingreso.unidad_medida_id', '=', 'unidades_medida.id')
+                ->join('subcategorias', 'unidades_medida.sub_categoria_id', '=', 'subcategorias.id')
+                ->groupBy('listado_ingreso.unidad_medida_id','listado_ingreso.actividad_id')
+                ->get();
 
-            $generarCodigo = Ingreso::where('numero_referencia', $id_referencia)
-                ->with('Usuario', 'Encargado')
-                ->first();
-            $pdf = PDF::loadView('pdf.pdf', ['ingreso' => $ingreso], ['data' => $data]);
+                // return $data;
+
+                // return view('pdf.pdf', compact('ingreso', 'data', 'id_referencia'));
+
+            // NO SE UTILIZA LIBRERIA PARA IMPRIMIR PORQUE NO SE TIENE SSH ACTIVADO
+            $pdf = PDF::loadView('pdf.pdf', [
+                'ingreso' => $ingreso,
+                'data' => $data,
+                'id_referencia' => $id_referencia
+            ]);
             return $pdf->stream();
-            //return redirect('listIngreso');
         }
-
-        //return view('pdf.pdf',  compact('ingreso', 'data'));
-    }
-
-    private function obtenerListadoIngreso($idIngreso) {
-        return  ListadoIngreso::select('listado_ingreso.id', 'listado_ingreso.unidad_medida_id', 'listado_ingreso.created_at', 'listado_ingreso.numero_extintor', 'actividades.nombre_actividad', 'unidades_medida.*')
-            ->where('ingreso_id', $idIngreso)
-            ->join('actividades', 'listado_ingreso.actividad_id', '=', 'actividades.id')
-            ->join('unidades_medida', 'listado_ingreso.unidad_medida_id', '=', 'unidades_medida.id')
-            ->get();
     }
 
     /**
-     * Módulo Ingreso: Trae un ingreso para un auxiliar.
+     * Módulo Ingreso: Crea o consulta ultimo ingreso.
      *
-     * @param [type] $id_vendedor
+     * @param [type] $id_vendedor Id de usuario logueado
      * @return \stdClass|\App\Models\Ingreso
      */
     public function getIngreso($id_vendedor) {
-        /**
-         * Validamos si encuentra un ingreso con el id del usuario y en estado de recibido si exite que nos lo muestre
-         * de lo contrario que nos cree un nuevo ingreso
-         */
-
         $ingreso = DB::table('ingresos')
             ->where('estado', 'recibido')
             ->where('usuario_id', $id_vendedor)
@@ -151,12 +90,12 @@ class IngresoController extends Controller
 
         $ingreso->fecha_recepcion = now()->format('Y-m-d');
         $ingreso->usuario_id = $id_vendedor;
-        $ingreso->numero_referencia = $ingreso->id;
         $ingreso->estado = 'recibido';
         $ingreso->save();
 
         return $ingreso;
     }
+
     public function listadoPorIngreso($idIngreso) {
         $data = Ingreso::where('id', $idIngreso)->with(
             'Listado_Ingreso',
@@ -178,11 +117,20 @@ class IngresoController extends Controller
      */
     public function index($id) {
         $crearId = $this->getIngreso($id);
-        return view('pages.ingreso.index', compact('crearId'));
+
+        $ultimoConsecutivo = NumeroTiquete::select([
+                'id',
+                'numero_tiquete'
+            ])
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $ultimoConsecutivoDisponible = intval($ultimoConsecutivo->numero_tiquete) + 1;
+        return view('pages.ingreso.index', compact('crearId', 'ultimoConsecutivoDisponible'));
     }
 
     /**
-     * Modulo Ingreso: Modal Editar ingreso
+     * Modulo Ingreso: Guarda el ingreso.
      *
      * @param Request $request
      * @param [type] $id Orden servicio
@@ -206,24 +154,74 @@ class IngresoController extends Controller
                 $errores = $validador->errors();
                 return back()->withErrors($errores);
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $th) {
             return back()->with('validacion_datos', 'No se pudo crear el ingreso: ' . $th);
         }
 
-        $id = $ingreso->id;
-        if ($ingreso) {
+        try {
+            // Consultando ultimo número de tiquet
+            $numeroEtiqueta = NumeroTiquete::all()->last();
+
+            // Actualizamos el ingreso
             $ingreso->fecha_recepcion       = $request->input('fecha_recepcion');
             $ingreso->fecha_entrega         = $request->input('fecha_entrega');
             $ingreso->encargado_id          = $request->input('encargado_id');
             $ingreso->numero_referencia     = $request->numero_referencia;
             $ingreso->numero_total_extintor = $request->input('numero_total_extintor');
-
-            // Guardamos en base de datos
+            $ingreso->estado                = "Produccion";
             $ingreso->save();
-            return redirect('ingresoL/' . $id);
-        } else {
-            return redirect('listIngreso')->with('error', 'No se actualizo  el ingreso');
+
+            // Guardando el listado de extintores ingresados
+            $contador = 1;
+            for ($nItem=1; $nItem <= $request->numeroFilasExtintores; $nItem++) {
+                $listadoIngreso = new ListadoIngreso();
+                $listadoIngreso->ingreso_id       = $ingreso->id;
+                $listadoIngreso->unidad_medida_id = $request->input('unidad_medida_id_'. $nItem);
+                $listadoIngreso->actividad_id     = $request->input('actividad_id_'. $nItem);
+                $listadoIngreso->numero_extintor  = $request->input('cantidad_medida_'. $nItem);
+                $listadoIngreso->estado           = 1;
+                $listadoIngreso->save();
+
+                // Recorriendo la cantidad de cada item ingresado
+                for ($nCantExt=0; $nCantExt < $request->input('cantidad_medida_'. $nItem); $nCantExt++) {
+                    // Aquí se crea por cada extintor una etiqueta nueva, para reservar en el sistema etiquetas para esa orden
+                    $recarga = Recarga::create([
+                        'nro_tiquete_anterior'  => $request->input('nro_tiquete_anterior_'. $nItem) ?? null,
+                        'nro_tiquete_nuevo'     => ($numeroEtiqueta->numero_tiquete ?? 0 ) + $contador,
+                        'nro_extintor'          => 1,
+                        'capacidad_id'          => $request->input('unidad_medida_id_'. $nItem),
+                        'agente'                => $request->input('agente_'. $nItem),
+                        'usuario_recarga_id'    => $ingreso->usuario_id,
+                        'ingreso_recarga_id'    => $ingreso->id,
+                        'activida_recarga_id'   => $request->input('actividad_id_'. $nItem),
+                        'ingreso_actividad'     => 0
+                    ]);
+
+                    // la actividad es nuevo codigo 3 guardamos en cambio de partes del extintor configuracion por defecto
+                    if ($request->input('actividad_id_'. $nItem) == 3) {
+                        $arrIdsListCambiopartes = [1,2,3,4,5,6,8,10,11];
+                        $this->saveListChangeParts($recarga->id, $arrIdsListCambiopartes);
+                    }
+
+                    //Creando registro de recarga para tener una data adelantada con informacion ingresada en ingreso
+                    NumeroTiquete::create([
+                        "numero_tiquete" => ($numeroEtiqueta->numero_tiquete ?? 0 ) + $contador,
+                        "ingreso_id"     => $ingreso->id,
+                        "recarga_id"     => $recarga->id
+                    ]);
+
+                    $contador++;
+                }
+            }
+
+            return back()->with([
+                'exito' => 'Se creo con exito la orden de servicio: '. $request->numero_referencia,
+                'numero_referencia' => $request->numero_referencia,
+            ]);
+        } catch (Exception $ex) {
+            return back()->with('validacion_datos', 'Error inesperado al crear orden de servicio, intente de nuevo'. $ex);
         }
+
     }
 
     /**

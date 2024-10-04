@@ -1,0 +1,5 @@
+Para poder utilizar la extension de pdf es necesario en este archivo de la libreria realizar el siguiente ajuste:
+Ir --> vendor\barryvdh\laravel-dompdf\src\ServiceProvider.php
+
+Cambiar ruta
+$path = '/home/aysdelsu/public_html';  // Ruta directa a la carpeta 'public_html'

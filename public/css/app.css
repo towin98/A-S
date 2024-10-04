@@ -2169,7 +2169,12 @@ pre code {
   opacity: 1;
 }
 
-.form-control:disabled,
+/* .form-control:disabled,
+.form-control[readonly] {
+  background-color: #e9ecef;
+  opacity: 1;
+} */
+
 .form-control[readonly] {
   background-color: #e9ecef;
   opacity: 1;

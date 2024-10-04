@@ -13,11 +13,11 @@ class CambioParteTableSeeder extends Seeder
     public function run()
     {
         DB::table('cambio_parte_extintor')->insert([
-            'nombre_parte_cambio' => 'Valvula',
+            'nombre_parte_cambio' => 'Válvula',
             'referencia' => '1',
         ]);
         DB::table('cambio_parte_extintor')->insert([
-            'nombre_parte_cambio' => 'Manometro',
+            'nombre_parte_cambio' => 'Manómetro',
             'referencia' => '2',
         ]);
         DB::table('cambio_parte_extintor')->insert([
@@ -29,7 +29,7 @@ class CambioParteTableSeeder extends Seeder
             'referencia' => '4',
         ]);
         DB::table('cambio_parte_extintor')->insert([
-            'nombre_parte_cambio' => 'Resipiente',
+            'nombre_parte_cambio' => 'Recipiente',
             'referencia' => '5',
         ]);
         DB::table('cambio_parte_extintor')->insert([
@@ -49,11 +49,11 @@ class CambioParteTableSeeder extends Seeder
             'referencia' => '8r',
         ]);
         DB::table('cambio_parte_extintor')->insert([
-            'nombre_parte_cambio' => 'Anillo de verificacion',
+            'nombre_parte_cambio' => 'Anillo de verificación',
             'referencia' => '9',
         ]);
         DB::table('cambio_parte_extintor')->insert([
-            'nombre_parte_cambio' => 'Etiqueta generica',
+            'nombre_parte_cambio' => 'Etiqueta genérica',
             'referencia' => '10',
         ]);
         DB::table('cambio_parte_extintor')->insert([
@@ -61,7 +61,7 @@ class CambioParteTableSeeder extends Seeder
             'referencia' => '11',
         ]);
         DB::table('cambio_parte_extintor')->insert([
-            'nombre_parte_cambio' => 'Cinturon',
+            'nombre_parte_cambio' => 'Cinturón',
             'referencia' => '12',
         ]);
     }

@@ -24,7 +24,7 @@
                         </div>
 
                         <label class="px-2 d-flex"><b>Propietario:</b><div id="id_propietario"></div></label>
-                        <div id="id_origen">REPORTE_EXTINTOR</div>
+                        <div id="id_origen" class="d-none">REPORTE_EXTINTOR</div>
 
                         <div class="card-body">
                             <table class="table" id="example" style="display: block; overflow-x: auto; white-space: nowrap; width: 100%">
