@@ -12,10 +12,6 @@
             font-family: monospace;
         }
 
-        h1 {
-            font-size: 44px;
-        }
-
         .ticket {
             margin: 2px;
         }
@@ -52,11 +48,11 @@
 
 <body>
     <div class="ticket centrado">
-        <h1 style="font-size: 44px !important;">A&S</h1>
+        <p style="font-size: 44px; font-weight: 600;">A&S</p>
         {{ 'Nit: 901.260.922-9' }}<br />
         {{ 'ASESORIAS Y SUMINISTROS DEL SUR' }}<br />
         {{ 'Telefono: 3162428919 - 3162732918' }}<br />
-        {{ 'Carrera 5 #3-153 sur interior 3 EDS Neiva gas' }}<br />
+        {{ 'Carrera 5 #3-153 sur interior 3 EDS Neivana gas' }}<br />
         <br />
         <small><strong>No. referencia: </strong></small>{{ $ingreso->id }}<br />
         <small><strong>Fecha Ingreso: </strong></small>{{ $ingreso->fecha_recepcion }}<br />

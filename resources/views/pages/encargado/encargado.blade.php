@@ -22,9 +22,9 @@
                         </button>
                     </div>
                     @endif
-                    @if (session('error'))
+                    @if (session('errors'))
                     <div class="alert alert-danger" role="alert">
-                        {{ session('error') }}
+                        {{ session('errors') }}
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -40,36 +40,35 @@
 
                             <form method="POST" action="{{ url('/encargado') }}">
                                 {{ csrf_field() }}
-                                <div class="form-group">
-                                    <label for="nombre_encargado">{{ __('Nombre completo del Clientes:') }} <span
-                                            style="color: red">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="nombre_encargado" required
-                                        name="nombre_encargado" onkeypress="return soloLetras(event)"
-                                        style="text-transform:uppercase;">
+
+                                <div class="row">
+                                    <div class="form-group col-12 col-md-6">
+                                        <label for="nombre_encargado">{{ __('Nombre completo del Clientes:') }}
+                                            <span style="color: red">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="nombre_encargado" name="nombre_encargado" value="{{ old('nombre_encargado', $encargado->nombre_encargado ?? '') }}"  onkeypress="return soloLetras(event)" style="text-transform:uppercase;" required>
+                                    </div>
+                                    <div class="form-group col-12 col-md-6">
+                                        <label for="numero_serial">{{ __('N° de Documento') }} <span style="color: red">*</span></label>
+                                        <input type="number" class="form-control" id="numero_serial" name="numero_serial" onkeypress="return soloNum(event)" value="{{ old('numero_serial', $encargado->numero_serial ?? '') }}" required>
+                                    </div>
+                                    <div class="form-group col-12 col-md-6">
+                                        <label for="email">{{ __('Email:') }} <span style="color: red">*</span></label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $encargado->email ?? '') }}" required>
+                                    </div>
+                                    <div class="form-group col-12 col-md-6">
+                                        <label for="direccion">{{ __('Dirección:') }} <span
+                                                style="color: red">*</span></label>
+                                        <input type="text" class="form-control" id="direccion" name="direccion" value="{{ old('direccion', $encargado->direccion ?? '') }}" required>
+                                    </div>
+                                    <div class="form-group col-12 col-md-6">
+                                        <label for="numero_celular">{{ __('N° de contacto:') }} <span style="color: red">*</span></label>
+                                        <input type="number" class="form-control" id="numero_celular" name="numero_celular" value="{{ old('numero_celular', $encargado->numero_celular ?? '') }}" required>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-end">
+                                        <button class="btn btn-warning">{{ __('Enviar') }}</button>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="numero_celular">{{ __('N° de contacto:') }} <span
-                                            style="color: red">*</span></label>
-                                    <input type="number" class="form-control" id="numero_celular" required
-                                        name="numero_celular">
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">{{ __('Email:') }} <span style="color: red">*</span></label>
-                                    <input type="email" class="form-control" id="email" required name="email">
-                                </div>
-                                <div class="form-group">
-                                    <label for="direccion">{{ __('Dirección:') }} <span
-                                            style="color: red">*</span></label>
-                                    <input type="text" class="form-control" id="direccion" required name="direccion">
-                                </div>
-                                <div class="form-group">
-                                    <label for="numero_serial">{{ __('N° de Documento') }} <span
-                                            style="color: red">*</span></label>
-                                    <input type="number" class="form-control" id="numero_serial" required
-                                        name="numero_serial" onkeypress="return soloNum(event)">
-                                </div>
-                                <button class="btn btn-warning">{{ __('Enviar') }}</button>
                             </form>
                         </div>
                     </div>

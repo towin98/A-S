@@ -69,56 +69,39 @@
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <form method="POST" action="/ingreso/{{$item->id}}"
-                                                            style="margin-top: 40px;" enctype="/multipart/form-data">
+                                                        <form method="POST" action="/ingreso/{{$item->id}}" enctype="/multipart/form-data">
                                                             {{ csrf_field()}}
                                                             {{ method_field('PUT')}}
+
                                                             <div class="form-row">
                                                                 <div class="form-group col-md-6">
-                                                                    <label for="Fecha Ingreso">{{__('Fecha de
-                                                                        ingreso')}}</label>
-                                                                    <input type="date" class="form-control"
-                                                                        id="fecha_recepcion" name="fecha_recepcion"
-                                                                        value="{{$item->fecha_recepcion}}">
+                                                                    <label for="Fecha Ingreso">{{__('Fecha de ingreso')}}</label>
+                                                                    <input type="date" class="form-control" id="fecha_recepcion" name="fecha_recepcion" value="{{$item->fecha_recepcion}}">
                                                                 </div>
                                                                 <div class="form-group col-md-6">
                                                                     <label for="Fecha Entrega">{{__('Fecha de entrega')}}</label>
-                                                                    <input required type="date" class="form-control"
-                                                                        id="fecha_entrega" name="fecha_entrega"
-                                                                        value="{{$item->fecha_entrega}}">
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-row">
-                                                                <div class="form-group col-md-6">
-                                                                    <label for="Numero Referencia">{{__('Numero de
-                                                                        referencia')}}</label>
-                                                                    <input disabled required type="text"
-                                                                        class="form-control" id="numero_referencia"
-                                                                        name="numero_referencia" value="{{$item->id}}">
-                                                                </div>
-                                                                <div class="form-group col-md-6">
-                                                                    <label for="Usuario">{{__('Colaborador
-                                                                        A&S')}}</label>
-                                                                    <input disabled required type="text"
-                                                                        class="form-control" id="usuario_id"
-                                                                        name="usuario_id"
-                                                                        value="{{Auth::user()->nombre}} {{Auth::user()->apellido}}">
+                                                                    <input required type="date" class="form-control" id="fecha_entrega" name="fecha_entrega" value="{{$item->fecha_entrega}}">
                                                                 </div>
                                                             </div>
 
                                                             <div class="form-row">
-                                                                <div class="form-group col-md-6"
-                                                                    style="margin-top: 44px">
-                                                                    <label for="Numero">{{__('Numero
-                                                                        exintores')}}</label>
-                                                                    <input disabled required type="number"
-                                                                        class="form-control"
-                                                                        name="numero_total_extintor"
-                                                                        id="numero_total_extintor"
-                                                                        value="{{$item->numero_total_extintor}}">
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="Numero Referencia">{{__('Numero de referencia')}}</label>
+                                                                    <input disabled required type="text" class="form-control" id="numero_referencia" name="numero_referencia" value="{{$item->id}}">
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="Usuario">{{__('Colaborador A&S')}}</label>
+                                                                    <input disabled required type="text" class="form-control" id="usuario_id" name="usuario_id" value="{{Auth::user()->nombre}} {{Auth::user()->apellido}}">
                                                                 </div>
                                                             </div>
-                                                            <div style="text-align:center; margin-top: 30px;">
+
+                                                            <div class="form-row">
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="Numero">{{__('Numero exintores')}}</label>
+                                                                    <input disabled required type="number" class="form-control" name="numero_total_extintor" id="numero_total_extintor" value="{{$item->numero_total_extintor}}">
+                                                                </div>
+                                                            </div>
+                                                            <div style="text-align:center;">
                                                                 <button type="submit" class="btn btn-success">Guardar</button>
                                                                 <a href="{{ url('/home') }}" class="btn btn-danger">Cancelar</a>
                                                             </div>
