@@ -57,8 +57,6 @@ class IngresoController extends Controller
                 ->groupBy('listado_ingreso.unidad_medida_id','listado_ingreso.actividad_id')
                 ->get();
 
-                // return $data;
-
                 // return view('pdf.pdf', compact('ingreso', 'data', 'id_referencia'));
 
             // NO SE UTILIZA LIBRERIA PARA IMPRIMIR PORQUE NO SE TIENE SSH ACTIVADO
@@ -318,16 +316,8 @@ class IngresoController extends Controller
             if ($ingreso) {
                 $ingreso->fecha_recepcion = $request->input('fecha_recepcion');
                 $ingreso->fecha_entrega = $request->input('fecha_entrega');
-                // $ingreso->encargado_id  = $request->input('encargado_id');
-                // $ingreso->numero_referencia = $ingreso->id;
-                // $ingreso->numero_total_extintor = $ingreso->numero_total_extintor;
-                // $ingreso->estado = $ingreso->estado;
-                // Guardamos en base de datos
                 $ingreso->save();
-
                 return redirect('listIngreso');
-                //return view('pages.listadoIngreso.listadoIngreso',compact('id','total'));
-                //return redirect('listadoIngreso');
             }
         } catch (\Throwable $th) {
             return redirect('listIngreso')->with('error', 'No se actualizo  el ingreso');

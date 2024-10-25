@@ -26,7 +26,8 @@
             </li>
             {{-- @endcan --}}
 
-            <li class="nav-item {{ $activePage == 'hocol' ? ' active' : '' }}">
+            <!-- Desarrollar -->
+            {{-- <li class="nav-item {{ $activePage == 'hocol' ? ' active' : '' }}">
                 <a class="nav-link " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     <i class="material-icons">streetview</i>
                     <p>
@@ -48,7 +49,7 @@
                     @endcan
 
                 </div>
-            </li>
+            </li> --}}
             <li class="nav-item {{ $activePage == 'ingreso' ? ' active' : '' }}">
                 <a class="nav-link " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     <i class="material-icons">pan_tool</i>

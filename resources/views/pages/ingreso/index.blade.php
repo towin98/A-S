@@ -54,15 +54,15 @@
                             <h3 class="text-center m-0 font-weight-bold">Orden de Servicio: <u>{{ $crearId->id }}</u></h3>
                             <div class="card-body">
                                 <div class="form-row">
-                                    <div class="form-group col-md-2 mb-0">
+                                    <div class="form-group col-lg-2 mb-0">
                                         <label for="Fecha Ingreso">{{ __('Fecha de ingreso') }} <span style="color: red">*</span></label>
                                         <input type="date" class="form-control" id="fecha_recepcion" name="fecha_recepcion" required>
                                     </div>
-                                    <div class="form-group col-md-2 mb-0">
+                                    <div class="form-group col-lg-2 mb-0">
                                         <label for="Fecha Entrega">{{ __('Fecha de entrega') }} <span style="color: red">*</span></label>
                                         <input type="date" class="form-control" id="fecha_entrega" name="fecha_entrega" required>
                                     </div>
-                                    <div class="form-group col-md-8 mb-0">
+                                    <div class="form-group col-lg-8 mb-0">
                                         <label for="encargado" class="mb-1">{{ __('Cliente') }} <span style="color: red">*</span></label>
                                         <select class="form-control selectpicker show-tick" id="encargado" name="encargado_id" data-live-search="true" data-style="bg-white text-muted h6" title="SELECCIONE CLIENTE" required>
                                             @foreach (Encargado() as $item)
@@ -88,13 +88,16 @@
                                 </div>
 
                                 <div id="listExtintores"></div>
-                                <div class="col-12 text-right">
-                                    <button type="button" id="addExtintor" onclick="addItemExtintor()" class="btn btn-success btn-sm">
-                                        Nuevo Item
-                                    </button>
-                                </div>
-                                <div class="form-group col-12 text-right">
-                                    <label>Total:</label><input type="number" id="numero_total_extintor" name="numero_total_extintor" value="1" style="width: 50px;" readonly>
+                                <div class="row">
+                                    <div class="col-6 col-lg-12 text-right">
+                                        <button type="button" id="addExtintor" onclick="addItemExtintor()" class="btn btn-success btn-sm">
+                                            Nuevo Item
+                                        </button>
+                                    </div>
+                                    <div class="form-group col-6 col-lg-12 text-right d-flex justify-content-end align-items-start">
+                                        <label>Total:</label>
+                                        <input type="number" id="numero_total_extintor" name="numero_total_extintor" value="1" style="width: 50px; text-align: center; margin-left: 5px; border: 0px;" readonly>
+                                    </div>
                                 </div>
                             </div>
                             <div style="text-align:center; margin-top: 30px;">
@@ -333,38 +336,38 @@
 
             // El contenido HTML de la nueva fila
             newRow.innerHTML = `
-                <div class='form-group col-12 col-md-2'>
+                <div class='form-group col-12 col-lg-2'>
                     <label for='nro_tiquete_anterior_${item}'>N° Tiquete Anterior</label>
                     <input type='number' class='form-control' id='nro_tiquete_anterior_${item}' name='nro_tiquete_anterior_${item}' data-itemtiqueteanterior='${item}' onkeydown='preventEnter(event)' onkeyup='readCodeAnterior(event, "agente_", "unidad_medida_id_")' title='Enter para Buscar'>
                 </div>
 
-                <div class='form-group col-12 col-md-4'>
+                <div class='form-group col-12 col-lg-4'>
                     <label for='agente_${item}'>Agente</label>
                     <select name='agente_${item}' id='agente_${item}' class='form-control' data-itemagente='${item}' onchange='cargarUnidadMedida(event)' required>
                         <option value=''>[Seleccionar]</option>
                     </select>
                 </div>
 
-                <div class='form-group col-12 col-md-2'>
+                <div class='form-group col-12 col-lg-2'>
                     <label for='unidad_medida_id_${item}'>Unidad de medida</label>
                     <select name='unidad_medida_id_${item}' id='unidad_medida_id_${item}' class='form-control' required>
                         <option value=''>[Seleccionar]</option>
                     </select>
                 </div>
 
-                <div class='form-group col-12 col-md-2'>
+                <div class='form-group col-12 col-lg-2'>
                     <label for='actividad_id_${item}'>Actividad</label>
                     <select class='form-control' name='actividad_id_${item}' id='actividad_id_${item}' required>
                         <option value=''>[Seleccionar]</option>
                     </select>
                 </div>
 
-                <div class='form-group col-12 col-md-1'>
+                <div class='form-group col-12 col-lg-1'>
                     <label for='cantidad_medida_${item}'>Cant</label>
                     <input type='number' class='form-control' id='cantidad_medida_${item}' value='1' name='cantidad_medida_${item}' onkeydown='preventEnter(event)' onkeyup='sumarValores()' required>
                 </div>
 
-                <div class='col-12 col-md-1 d-flex align-items-center'>
+                <div class='col-12 col-lg-1 d-flex align-items-center justify-content-end'>
                     <button type="button" onclick="removeItem(${item})" class="btn btn-danger btn-sm mt-4">X</button>
                 </div>
             `;
