@@ -6,6 +6,8 @@ boton_buscar_orden_servicio.addEventListener("click", function(e) {
     e.preventDefault();
 
     var loadingOverlay = document.getElementById("loading-overlay");
+    limpiarCampos();
+
     loadingOverlay.style.display = "flex";
 
     const id_orden = document.getElementById("id_orden_servicio").value;
@@ -34,20 +36,7 @@ boton_buscar_orden_servicio.addEventListener("click", function(e) {
             }
         })
         .then(data => {
-
-            limpiarCampos();
-
             const datos = data.data;
-
-            document.getElementById('id_fecha_recepcion').value     = datos.fecha_recepcion
-            document.getElementById('id_fecha_entrega').value       = datos.fecha_entrega
-            document.getElementById('id_orden').value               = datos.id_orden
-            document.getElementById('id_cliente').value             = datos.cliente
-            document.getElementById('id_nit').value                 = datos.nit
-            document.getElementById('id_direccion').value           = datos.direccion
-            document.getElementById('id_contacto').value            = datos.contacto
-            document.getElementById('id_email').value               = datos.email
-            document.getElementById('id_total_extintores').value    = datos.total_extintores
 
             document.getElementById('id_fecha_recepcion').setAttribute('value', datos.fecha_recepcion);
             document.getElementById('id_fecha_entrega').setAttribute('value', datos.fecha_entrega);
@@ -63,11 +52,9 @@ boton_buscar_orden_servicio.addEventListener("click", function(e) {
             let dataTabla = document.getElementById("tbody");
             dataTabla.innerHTML = "";
 
-            console.log(Object.values(datos.extintores));
             Object.values(datos.extintores).forEach(extintor => {
                 let tr = document.createElement("tr");
 
-                console.log(Object.values(extintor));
                 Object.values(extintor).map(function(text){
                     let td = document.createElement("td")
                     td.textContent = text;
@@ -97,7 +84,7 @@ boton_buscar_orden_servicio.addEventListener("click", function(e) {
 function limpiarCampos(){
     let nodeListInputReporte = document.querySelectorAll('.limpiarCampos');
     for (let i = 0; i < nodeListInputReporte.length; i++) {
-        nodeListInputReporte[i].value = '';
+        nodeListInputReporte[i].setAttribute('value', '');
     }
 
     let dataTabla = document.getElementById("tbody");
@@ -250,7 +237,6 @@ function imprimirSeccion() {
 
     printContents = style + printContents;
 
-    console.log(printContents);
     w = window.open();
     w.document.write(printContents);
     w.document.close(); // necessary for IE >= 10

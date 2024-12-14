@@ -123,6 +123,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('reporte/cliente-ordenes-servicio', 'Reportes\ReporteController@reporteClienteOrdenesServicio');
     Route::get('reporte/orden-servicio', 'Reportes\ReporteController@vistaReporteOrdenServicio')->name('viewReporteOrdenServicio');
     Route::post('reporte/orden', 'Reportes\ReporteController@reporteOrden');
+    Route::get('reporte/orden-produccion', 'Reportes\ReporteController@vistaReporteOrdenProduccion')->name('viewReporteOrdenProduccion');
+    Route::post('reporte/produccion', 'Reportes\ReporteController@reporteProduccion');
 
     #ListadoIngreso
     Route::get('listadoIngreso/{id}', 'ListadoIngreso\ListadoIngresoController@index')->name('listadoIngreso');

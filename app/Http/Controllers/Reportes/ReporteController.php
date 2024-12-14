@@ -124,109 +124,6 @@ class ReporteController extends Controller
         ],200);
     }
 
-    /**
-      * Método que contruye info data del extintor detallamente.
-      *
-      * @param Object $recarga
-      * @return array
-      */
-    private function reporteExtintor(Object $recarga): array {
-
-        $arrCambioPartes = [];
-        $arrPrueba = [];
-        $arrFugas = [];
-
-        // Cambio de partes del extintor - listado_recarga
-        $listadosRecarga = listadoRecarga::select('cambio_parte_id')
-            ->where('recarga_id', $recarga->id)
-            ->get();
-        foreach ($listadosRecarga as $listadoRecarga) {
-            $id = $listadoRecarga->cambio_parte_id;
-            $arrCambioPartes[$id] = 'X';
-        }
-
-        // Prueba
-        $listadoPruebas = listadoPrueba::select(['id','recarga_id','prueba_id'])
-            ->with('getPrueba')
-            ->where('recarga_id', $recarga->id)
-            ->get();
-
-        foreach ($listadoPruebas as $listadoPrueba) {
-            switch (strtoupper($listadoPrueba->getPrueba->abreviacion_prueba)) {
-                case 'PI':
-                    $arrPrueba['PI'] = 'X';
-                    break;
-                case 'HI':
-                    $arrPrueba['HI'] = 'X';
-                    break;
-                case 'HE':
-                    $arrPrueba['HE'] = 'X';
-                    break;
-            }
-        }
-
-        // Fuga
-        $arrFugas = [];
-        if (count($recarga->RecargaFuga) > 0) {
-            switch ($recarga->RecargaFuga[0]->abreviacion_fuga) {
-                case 'A':
-                    $arrFugas['A'] = 'X';
-                    break;
-                case 'B':
-                    $arrFugas['B'] = 'X';
-                    break;
-                case 'C':
-                    $arrFugas['C'] = 'X';
-                    break;
-                case 'A M':
-                    $arrFugas['A M'] = 'X';
-                    break;
-            }
-        }
-
-        $agente = ($recarga->UnidadMedida->SubCategoria->nombre_subCategoria ?? '') . "-" . ($recarga->UnidadMedida->SubCategoria->categoria->nombre_categoria ?? '');
-
-        $arrInfoEtiquetas = [
-            'nro_tiquete_anterior'  => $recarga->nro_tiquete_anterior,
-            'nro_tiquete_nuevo'     => $recarga->nro_tiquete_nuevo,
-            'ingreso_recarga_id'    => $recarga->ingreso_recarga_id,
-            'agente'                => $agente,
-            'capacidad_producto'    => $recarga->UnidadMedida->cantidad_medida ?? '',
-            'unidad_medida'         => $recarga->UnidadMedida->unidad_medida  ?? '',
-            'nombre_actividad'      => $recarga->RecargaActividad[0]->nombre_actividad ?? '',
-
-            // Cambio de partes del extintor
-            'parte_1'               => array_key_exists(1, $arrCambioPartes) ? $arrCambioPartes[1] : '',
-            'parte_2'               => array_key_exists(2, $arrCambioPartes) ? $arrCambioPartes[2] : '',
-            'parte_3'               => array_key_exists(3, $arrCambioPartes) ? $arrCambioPartes[3] : '',
-            'parte_4'               => array_key_exists(4, $arrCambioPartes) ? $arrCambioPartes[4] : '',
-            'parte_5'               => array_key_exists(5, $arrCambioPartes) ? $arrCambioPartes[5] : '',
-            'parte_6'               => array_key_exists(6, $arrCambioPartes) ? $arrCambioPartes[6] : '',
-            'parte_7'               => array_key_exists(7, $arrCambioPartes) ? $arrCambioPartes[7] : '',
-            'parte_8'               => array_key_exists(8, $arrCambioPartes) ? $arrCambioPartes[8] : '',
-            'parte_9'               => array_key_exists(9, $arrCambioPartes) ? $arrCambioPartes[9] : '',
-            'parte_10'              => array_key_exists(10, $arrCambioPartes) ? $arrCambioPartes[10] : '',
-            'parte_11'              => array_key_exists(11, $arrCambioPartes) ? $arrCambioPartes[11] : '',
-            'parte_12'              => array_key_exists(12, $arrCambioPartes) ? $arrCambioPartes[12] : '',
-            'parte_13'              => array_key_exists(13, $arrCambioPartes) ? $arrCambioPartes[13] : '',
-
-            // Pruebas
-            'PI'                    => array_key_exists('PI', $arrPrueba) ? $arrPrueba['PI'] : '',
-            'HI'                    => array_key_exists('HI', $arrPrueba) ? $arrPrueba['HI'] : '',
-            'HE'                    => array_key_exists('HE', $arrPrueba) ? $arrPrueba['HE'] : '',
-
-            // Fugas
-            'niple'                 => array_key_exists('A', $arrFugas) ? $arrFugas['A'] : '',
-            'recipiente'            => array_key_exists('B', $arrFugas) ? $arrFugas['B'] : '',
-            'valvula'               => array_key_exists('C', $arrFugas) ? $arrFugas['C'] : '',
-            'acople_manguera'       => array_key_exists('A M', $arrFugas) ? $arrFugas['A M'] : '',
-
-            'fecha'                 => $recarga->created_at->format('Y-m-d')
-        ];
-
-        return $arrInfoEtiquetas;
-    }
-
     public function vistaReporteClienteExtintor(){
         return view('pages.reportes.reporteClienteExtintor');
     }
@@ -403,11 +300,185 @@ class ReporteController extends Controller
                 'errors'  => [
                     'No se encontraron registros con la Orden:'.$request->id_orden
                 ]
-            ], 404);
+            ], 409);
         }
 
         return response()->json([
             "data"        => $arrData,
         ],200);
+    }
+
+    public function vistaReporteOrdenProduccion(){
+        return view('pages.reportes.reporteOrdenProduccion');
+    }
+
+    /**
+     * Método que genera reporte de produccion por la orden.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function reporteProduccion(Request $request): JsonResponse {
+
+        $arrData = [];
+
+        $ordenProduccion = Recarga::select([
+                'id',
+                'nro_tiquete_anterior',
+                'nro_tiquete_nuevo',
+
+                'n_extintor',
+                'n_interno_cliente',
+                'fecha_hidrostatica',
+
+                'ingreso_recarga_id',
+                'activida_recarga_id',
+                'fuga_id',
+                'capacidad_id',
+                'created_at'
+            ])
+            ->with('RecargaIngreso.Encargado')
+            ->with('RecargaIngreso.Usuario')
+            ->with('RecargaActividad')
+            ->with('UnidadMedida.SubCategoria.Categoria')
+            ->with('RecargaFuga')
+            ->where('ingreso_recarga_id', $request->id_orden)
+            ->get();
+
+        if (count($ordenProduccion) > 0) {
+            foreach ($ordenProduccion as $orden) {
+                $arrData[] = $this->reporteExtintor($orden);
+            }
+        }else{
+            return response()->json([
+                'message' => 'Error de Validación de Datos',
+                'errors'  => [
+                    'No se encontro Orden:'.$request->orden
+                ]
+            ], 409);
+        }
+
+        return response()->json([
+            "data"        => $arrData,
+            "data_extra" => [
+                "id_orden" => $request->id_orden,
+                "fecha_recepcion" => $ordenProduccion[0]->RecargaIngreso->fecha_recepcion,
+                "fecha_entrega" => $ordenProduccion[0]->RecargaIngreso->fecha_entrega,
+                "cliente" => $ordenProduccion[0]->RecargaIngreso->Encargado->numero_serial. " - " .$ordenProduccion[0]->RecargaIngreso->Encargado->nombre_encargado,
+                "operario" => $ordenProduccion[0]->RecargaIngreso->Usuario->nombre
+            ]
+        ],200);
+    }
+
+    /**
+     * Método que contruye info data del extintor detallamente.
+     *
+     * @param Object $recarga
+     * @return array
+     */
+    private function reporteExtintor(Object $recarga): array {
+
+        $arrCambioPartes = [];
+        $arrPrueba = [];
+        $arrFugas = [];
+
+        // Cambio de partes del extintor - listado_recarga
+        $listadosRecarga = listadoRecarga::select('cambio_parte_id')
+            ->where('recarga_id', $recarga->id)
+            ->get();
+        foreach ($listadosRecarga as $listadoRecarga) {
+            $id = $listadoRecarga->cambio_parte_id;
+            $arrCambioPartes[$id] = 'X';
+        }
+
+        // Prueba
+        $listadoPruebas = listadoPrueba::select(['id','recarga_id','prueba_id'])
+            ->with('getPrueba')
+            ->where('recarga_id', $recarga->id)
+            ->get();
+
+        foreach ($listadoPruebas as $listadoPrueba) {
+            switch (strtoupper($listadoPrueba->getPrueba->abreviacion_prueba)) {
+                case 'PI':
+                    $arrPrueba['PI'] = 'X';
+                    break;
+                case 'HI':
+                    $arrPrueba['HI'] = 'X';
+                    break;
+                case 'HE':
+                    $arrPrueba['HE'] = 'X';
+                    break;
+            }
+        }
+
+        // Fuga
+        $arrFugas = [];
+        if (count($recarga->RecargaFuga) > 0) {
+            switch ($recarga->RecargaFuga[0]->abreviacion_fuga) {
+                case 'A':
+                    $arrFugas['A'] = 'X';
+                    break;
+                case 'B':
+                    $arrFugas['B'] = 'X';
+                    break;
+                case 'C':
+                    $arrFugas['C'] = 'X';
+                    break;
+                case 'A M':
+                    $arrFugas['A M'] = 'X';
+                    break;
+                case 'N/A':
+                    $arrFugas['N/A'] = 'X';
+                    break;
+            }
+        }
+
+        $agente = ($recarga->UnidadMedida->SubCategoria->nombre_subCategoria ?? '') . "-" . ($recarga->UnidadMedida->SubCategoria->categoria->nombre_categoria ?? '');
+
+        $arrInfoEtiquetas = [
+            'nro_tiquete_anterior'  => $recarga->nro_tiquete_anterior,
+            'nro_tiquete_nuevo'     => $recarga->nro_tiquete_nuevo,
+            'ingreso_recarga_id'    => $recarga->ingreso_recarga_id,
+
+            'n_extintor'            => $recarga->n_extintor,
+            'n_interno_cliente'     => $recarga->n_interno_cliente,
+            'fecha_hidrostatica'    => $recarga->fecha_hidrostatica,
+
+            'agente'                => $agente,
+            'capacidad_producto'    => $recarga->UnidadMedida->cantidad_medida ?? '',
+            'unidad_medida'         => $recarga->UnidadMedida->unidad_medida  ?? '',
+            'nombre_actividad'      => $recarga->RecargaActividad[0]->nombre_actividad ?? '',
+
+            // Cambio de partes del extintor
+            'parte_1'               => array_key_exists(1, $arrCambioPartes) ? $arrCambioPartes[1] : '',
+            'parte_2'               => array_key_exists(2, $arrCambioPartes) ? $arrCambioPartes[2] : '',
+            'parte_3'               => array_key_exists(3, $arrCambioPartes) ? $arrCambioPartes[3] : '',
+            'parte_4'               => array_key_exists(4, $arrCambioPartes) ? $arrCambioPartes[4] : '',
+            'parte_5'               => array_key_exists(5, $arrCambioPartes) ? $arrCambioPartes[5] : '',
+            'parte_6'               => array_key_exists(6, $arrCambioPartes) ? $arrCambioPartes[6] : '',
+            'parte_7'               => array_key_exists(7, $arrCambioPartes) ? $arrCambioPartes[7] : '',
+            'parte_8'               => array_key_exists(8, $arrCambioPartes) ? $arrCambioPartes[8] : '',
+            'parte_9'               => array_key_exists(9, $arrCambioPartes) ? $arrCambioPartes[9] : '',
+            'parte_10'              => array_key_exists(10, $arrCambioPartes) ? $arrCambioPartes[10] : '',
+            'parte_11'              => array_key_exists(11, $arrCambioPartes) ? $arrCambioPartes[11] : '',
+            'parte_12'              => array_key_exists(12, $arrCambioPartes) ? $arrCambioPartes[12] : '',
+            'parte_13'              => array_key_exists(13, $arrCambioPartes) ? $arrCambioPartes[13] : '',
+
+            // Pruebas
+            'PI'                    => array_key_exists('PI', $arrPrueba) ? $arrPrueba['PI'] : '',
+            'HI'                    => array_key_exists('HI', $arrPrueba) ? $arrPrueba['HI'] : '',
+            'HE'                    => array_key_exists('HE', $arrPrueba) ? $arrPrueba['HE'] : '',
+
+            // Fugas
+            'niple'                 => array_key_exists('A', $arrFugas) ? $arrFugas['A'] : '',
+            'recipiente'            => array_key_exists('B', $arrFugas) ? $arrFugas['B'] : '',
+            'valvula'               => array_key_exists('C', $arrFugas) ? $arrFugas['C'] : '',
+            'acople_manguera'       => array_key_exists('A M', $arrFugas) ? $arrFugas['A M'] : '',
+            'na'                    => array_key_exists('N/A', $arrFugas) ? $arrFugas['N/A'] : '',
+
+            'fecha'                 => $recarga->created_at->format('Y-m-d')
+        ];
+
+        return $arrInfoEtiquetas;
     }
 }

@@ -1,5 +1,6 @@
 @extends('layouts.app', ['activePage' => 'recargas', 'titlePage' => __('Gestion De Orden De Producción')])
 @section('content')
+
     <div class="content">
         <div class="container-fluid">
             <div class="row">
@@ -78,22 +79,22 @@
 
                         <div class="card-body table-responsive">
                             <div class="row">
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <div style="width: 20px; height: 10px;" class="bg-success"></div>
-                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que estos extintores ya se les realizo ingreso de actividad.
-                                    </div>
+                                <div class="col-12 col-lg-7">
                                     <div class="d-flex align-items-center">
                                         <div style="width: 20px; height: 10px; background: #ff9800"></div>
                                         &nbsp;&nbsp; &nbsp; &nbsp;Indica que estos extintores faltan por ingresar actividad.
                                     </div>
                                     <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 10px;" class="bg-success"></div>
+                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que estos extintores ya se les realizo ingreso de actividad.
+                                    </div>
+                                    <div class="d-flex align-items-center">
                                         <div style="width: 20px; height: 10px; background: #f44336"></div>
-                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que la actividad del extintor esta cerrada.
+                                        &nbsp;&nbsp; &nbsp; &nbsp;Indica que la actividad del extintor esta cerrada y no se puede modificar registro.
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="position-absolute pr-4" style="right: 0px">
+                                <div class="col-12 col-lg-5">
+                                    <div class="d-flex justify-content-end pr-4">
                                         <button
                                             type="button"
                                             class="btn btn-danger text-capitalize"
@@ -146,8 +147,6 @@
                                                             onclick="return confirm('Desea eliminar el registro?')">close</i>
                                                     </button>
                                                 </form> --}}
-
-
                                             </td>
                                         </tr>
                                     @endforeach
@@ -161,7 +160,7 @@
     </div>
 
     <!--Modal para editar recarga-->
-    <div class="modal fade modal fade bd-example-modal-lg" id="recargaModal" tabindex="-1" role="dialog" data-bs-backdrop="static" aria-labelledby="recargaModalLabel" aria-hidden="true">
+    <div class="modal fade modal fade bd-example-modal-lg" id="recargaModal" tabindex="-1" role="dialog" data-bs-backdrop="static" aria-labelledby="recargaModalLabel">
         <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -175,33 +174,31 @@
                     {{ csrf_field() }}
                     <input type="hidden" type="text" value="" name="recarga_id" id="recarga_id">
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-6 col-lg-2">
                             <div class="form-group mt-0 pb-0 mb-1">
                                 <label for="nro_tiquete_anterior">{{ __('N° tiquete anterior:') }}</label>
                                 <input type="number" class="form-control" id="nro_tiquete_anterior" name="nro_tiquete_anterior" onkeydown="preventEnter(event)">
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-6 col-lg-2">
                             <div class="form-group mt-0 pb-0 mb-1">
                                 <label for="nro_tiquete_nuevo">{{ __('N° tiquete nuevo:') }}</label>
                                 <input type="number" class="form-control" id="nro_tiquete_nuevo" value="" name="nro_tiquete_nuevo" onkeydown="preventEnter(event)" required readonly>
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-6 col-lg-2">
                             <div class="form-group mt-0 pb-0 mb-1">
                                 <label for="ingreso_recarga_id">{{ __('Orden de Servicio:') }}</label>
                                 <input type="text" class="form-control" id="ingreso_recarga_id" value="{{ $id }}" name="ingreso_recarga_id" readonly required>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6 col-md-4">
+                        <div class="col-6 col-lg-3">
                             <div class="form-group mt-0 pb-0">
                                 <label for="agente">{{ __('Agente:') }}</label>
-                                <select name="agente" id="agente" class="form-control"></select>
+                                <select name="agente" id="agente" class="form-control" readonly></select>
                             </div>
                         </div>
-                        <div class="col-6 col-md-4">
+                        <div class="col-6 col-lg-3">
                             <div class="form-group mt-0 pb-0">
                                 <label for="capacidad_id">{{ __('Unidad de medida') }}</label>
                                 <select name="capacidad_id" id="capacidad_id" class="form-control" readonly>
@@ -210,25 +207,36 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-6 col-md-4">
+                        <div class="col-6 col-lg-2">
                             <div class="form-group mt-0 pb-0">
-                                <label for="activida_recarga_id">{{ __('Seleccionar Actividad') }}</label>
-                                <select class="form-control" name="activida_recarga_id" id="activida_recarga_id">
-                                    <option value="">[SELECCIONAR]</option>
-                                    {{-- @foreach (Actividad() as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nombre_actividad }}
-                                        </option>
-                                    @endforeach --}}
-                                </select>
+                                <label for="activida_recarga_id">{{ __('Actividad') }}</label>
+                                <select class="form-control" name="activida_recarga_id" id="activida_recarga_id" readonly></select>
                             </div>
                         </div>
-                        {{-- <div class="col-12">
-                            <div class="form-group mt-3 pb-0">
-                                <label for="id_cliente">{{ __('Cliente') }}</label>
-                                <input type="text" class="form-control" id="id_cliente" name="cliente" value="{{ $dataCliente->numero_serial }} - {{ $dataCliente->nombre_encargado }}" readonly>
+                        <div class="col-6 col-lg-2">
+                            <div class="form-group mt-0 pb-0">
+                                <label for="fecha_hidrostatica">{{ __('Fecha Hidrostática') }}</label>
+                                <input type="date" class="form-control" id="fecha_hidrostatica" value="" name="fecha_hidrostatica" required>
                             </div>
-                        </div> --}}
+                        </div>
+                        <div class="col-6 col-lg-2">
+                            <div class="form-group mt-0 pb-0">
+                                <label for="n_interno_cliente">{{ __('N° interno Cliente') }}</label>
+                                <input type="text" class="form-control" id="n_interno_cliente" value="" name="n_interno_cliente" required>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="form-group mt-0 pb-0">
+                                <label for="n_extintor">{{ __('N° del extintor') }}</label>
+                                <input type="text" class="form-control" id="n_extintor" value="" name="n_extintor" required>
+                            </div>
+                        </div>
                     </div>
+
+                    <ul>
+                        <li class="text-danger">Fecha de ultima prueba Hidrostática realizada: <span id="fecha_hidrostatica_anterior"></span>.</li>
+                    </ul>
+
                     <h3 class="mt-0 text-center text-warning">{{ __('Cambio de partes del extintor') }}</h3>
                     <div class="form-group mt-1 pb-0">
                         <div class="row">
@@ -312,24 +320,7 @@
             </div>
         </div>
     </div>
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $("#agente").change(function() {
-                var categoria = $(this).val();
-                $.get('getUnidad/' + categoria, function(data) {
-                    //esta el la peticion get, la cual se divide en tres partes. ruta,variables y funcion
-                    var producto_select =
-                        '<option value="">---Seleccione unidad de medida---</option>'
-                    for (var i = 0; i < data.length; i++)
-                        producto_select += '<option value="' + data[i].id + '">' + data[i].cantidad_medida + '</option>';
-
-                    $("#capacidadProducto").html(producto_select);
-
-                });
-            });
-        });
 
         function preventEnter(event) {
             if (event.key === "Enter") {
@@ -340,12 +331,13 @@
         }
 
         function abrirModalRecarga(id_recarga, estado){
-            $('#recargaModal').modal('show');
             limpiarCampos(estado);
             consultandoRecarga(id_recarga);
+            $('#recargaModal').modal('show');
         }
 
         function consultandoRecarga(id_recarga) {
+            document.getElementById("loading-overlay").style.display = "flex";
             // recarga/buscar-recarga/{id_recarga}
             const myHeader = new Headers({
                     "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
@@ -371,6 +363,17 @@
                     .then(data => {
                         const datos = data.data;
                         if (datos) {
+                            //CARGANDO FECHA HIDROSTRATICA ANTERIOR
+                            document.getElementById('fecha_hidrostatica_anterior').textContent = datos?.fecha_hidrostatica_anterior;
+
+                            //CARGANDO FECHA PRUEBA HIDROSTATICA ACTUAL REALIZADA
+                            document.getElementById('fecha_hidrostatica').value = datos?.fecha_hidrostatica == '1900-01-01' ? '' : datos?.fecha_hidrostatica;
+
+                            //CARGANDO NUMERO INTERNO CLIENTE: ESTE ES EL NUMERO INTERNO QUE A VECES LAS EMPRESAS TIENEN DE SUS EXTINTOR.
+                            document.getElementById('n_interno_cliente').value = datos?.n_interno_cliente;
+
+                            //CARGANDO NUMERO EXTINTOR: ESTE ES EL NUMERO QUE VA EN LA PLACA DEL EXTINTOR
+                            document.getElementById('n_extintor').value = datos?.n_extintor;
 
                             // Aqui checked lo cambios de partes
                             data.cambiopartes.forEach(valor => {
@@ -442,16 +445,15 @@
 
                             $(`#capacidad_id`).val(datos?.unidades_medida_id);
                             $(`#activida_recarga_id`).val(datos?.activida_recarga_id);
-
                         } else {
                             alert("No se encontraron resultado.");
-                            document.getElementById("loading-overlay").style.display = "none";
                         }
+                        document.getElementById("loading-overlay").style.display = "none";
                     })
                     .catch(error => {
                         const errorData = JSON.parse(error.message);
                         // let errores = errorData.message + ":\n\n";
-                        console.log(errorData);
+                        // console.log(errorData);
                         document.getElementById("loading-overlay").style.display = "none";
                     });
         }
@@ -480,7 +482,7 @@
             event.preventDefault();
             const form = document.getElementById('formProduccion'); // Selecciona el formulario
 
-            if (!form.checkValidity()) { // Verifica si el formulario NO es  válido
+            if (!form.checkValidity()) { // Verifica si el formulario NO es válido
                 form.reportValidity(); // Muestra los errores de validación nativos de HTML5
                 return
             }
@@ -519,6 +521,9 @@
                     fuga_id             : document.querySelector('input[name="fuga_id"]:checked')?.value ?? null,
                     observacion         : document.getElementById('observacion').value,
                     nuevo_extintor      : document.querySelector('input[name="cambioExtintirNuevo"]:checked')?.value ?? 'NO',
+                    fecha_hidrostatica  : document.getElementById('fecha_hidrostatica').value,
+                    n_interno_cliente   : document.getElementById('n_interno_cliente').value,
+                    n_extintor          : document.getElementById('n_extintor').value,
                     estado              : (cerrarOrden ? 0 : 1)
                 };
 
@@ -550,7 +555,7 @@
                     .catch(error => {
                         const errorData = JSON.parse(error.message);
                         // let errores = errorData.message + ":\n\n";
-                        console.log(errorData);
+                        // console.log(errorData);
                         alert(errorData.errors[0]);
                         document.getElementById("loading-overlay").style.display = "none";
                     });
@@ -559,9 +564,21 @@
         function limpiarCampos(estadoOrden = 1) {
 
             document.getElementById("recarga_id").value ='';
+
             document.getElementById("nro_tiquete_anterior").value ='';
+            document.getElementById("nro_tiquete_anterior").disabled = (estadoOrden) ? true : false;
+
             document.getElementById("nro_tiquete_nuevo").value ='';
             document.getElementById("agente").value ='';
+
+            document.getElementById("fecha_hidrostatica").value ='';
+            document.getElementById("fecha_hidrostatica").readOnly = (estadoOrden == 0) ? true : false;
+
+            document.getElementById("n_interno_cliente").value ='';
+            document.getElementById("n_interno_cliente").readOnly = (estadoOrden == 0) ? true : false;
+
+            document.getElementById("n_extintor").value ='';
+            document.getElementById("n_extintor").readOnly = (estadoOrden == 0) ? true : false;
 
             const checkboxesCambioParte = document.querySelectorAll('input[name="cambioParte[]"]');
 
@@ -670,7 +687,7 @@
                     .catch(error => {
                         const errorData = JSON.parse(error.message);
                         // let errores = errorData.message + ":\n\n";
-                        console.log(errorData);
+                        // console.log(errorData);
                         alert(errorData.errors[0]);
                         document.getElementById("loading-overlay").style.display = "none";
                     });

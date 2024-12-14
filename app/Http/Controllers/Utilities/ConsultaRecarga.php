@@ -84,7 +84,7 @@ trait ConsultaRecarga
      * Consulta recarga por id
      *
      * @param [type] $id_recarga Primary key de la recarga
-     * @return void
+     * @return JsonResponse
      */
     public function consultandoRecarga($id_recarga)
     {
@@ -96,6 +96,9 @@ trait ConsultaRecarga
                 'recargas.fuga_id',
                 'recargas.observacion',
                 'recargas.nuevo_extintor',
+                'recargas.fecha_hidrostatica',
+                'recargas.n_interno_cliente',
+                'recargas.n_extintor',
                 'nro_extintor',
                 'actividades.nombre_actividad',
                 'unidades_medida.id as unidades_medida_id',

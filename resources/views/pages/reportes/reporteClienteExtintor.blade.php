@@ -13,14 +13,10 @@
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label for="encargado">{{__('Cliente')}} <span style="color: red">*</span></label>
-                                <select id="encargado" name="encargado_id"
-                                    class=" form-control chosen-select">
-                                    <option value="">Seleccionar</option>
-                                    @foreach(Encargado() as $item)
-                                    <option value="{{ $item->id }}">
-                                        {{ $item ->nombre_encargado }}
-                                    </option>
+                                <label for="encargado" class="mb-1">{{ __('Cliente') }} <span style="color: red">*</span></label>
+                                <select class="form-control selectpicker show-tick" id="encargado" name="encargado_id" data-live-search="true" data-style="bg-white text-muted h6" title="SELECCIONE CLIENTE" required>
+                                    @foreach (Encargado() as $item)
+                                        <option value="{{ $item->id }}">{{ $item->numero_serial }} - {{ $item->nombre_encargado }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -64,15 +60,8 @@
 @endsection
 @section('script')
 <script type="text/javascript">
-    var config = {
-        '.chosen-select': {},
-        '.chosen-select-deselect': { allow_single_deselect: true },
-        '.chosen-select-no-single': { disable_search_threshold: 10 },
-        '.chosen-select-no-results': { no_results_text: 'Oops, nothing found!' },
-        '.chosen-select-width': { width: "95%" }
-    }
-    for (var selector in config) {
-        $(selector).chosen(config[selector]);
-    }
+        $(function () {
+            $('selectpicker').selectpicker();
+        });
 </script>
 @endsection

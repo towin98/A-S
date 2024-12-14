@@ -68,6 +68,7 @@ boton_buscar_etiqueta_extintor.addEventListener("click", function(e) {
                     item.recipiente,
                     item.valvula,
                     item.acople_manguera,
+                    item.na,
 
                     item.fecha
                 ]).draw(false);

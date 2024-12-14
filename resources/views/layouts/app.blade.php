@@ -18,13 +18,15 @@
     <link href="{{ asset('material') }}/css/material-dashboard.css?v=2.1.1" rel="stylesheet" />
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link href="{{ asset('material') }}/demo/demo.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('chosen/chosen.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('chosen/chosen.css') }}"> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/4.0.0/material-components-web.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.material.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
     <!--IMPORTANDO BOOTSTRAP 4.-->
     <link rel="stylesheet" href="{{ asset('css') }}/app.css">
+    <!-- ESTYLOS PARA SELECT MULTIPLE -->
+    <link rel="stylesheet" href="{{ asset('css') }}/select-multiple.css">
 
     {{-- Estilos para loading --}}
     <style>
@@ -116,7 +118,7 @@
     <script src="{{ asset('material') }}/demo/demo.js"></script>
     <script src="{{ asset('material') }}/js/settings.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <script src="{{ asset('chosen/chosen.jquery.js') }}"></script>
+    {{-- <script src="{{ asset('chosen/chosen.jquery.js') }}"></script> --}}
     @yield('script')
     @stack('js')
 
@@ -143,6 +145,56 @@
                         customize: function (xlsx) {
 
                             switch (document.getElementById('id_origen')?.textContent) {
+                                case 'REPORTE_PRODUCCION_ORDEN':
+                                    // Obtener la hoja de trabajo activa
+                                    let sheet_ = xlsx.xl.worksheets['sheet1.xml'];
+
+                                    let sheetData_ = sheet_.childNodes[0].childNodes[1];
+                                    let numeroFilas_ = sheetData_.childNodes.length;
+                                    const title_ = "<row  r='1'>" + sheet_.childNodes[0].childNodes[1].childNodes[0].innerHTML + "</row>";
+
+                                    let contenido_ = "";
+
+                                    const segundaFila = "<row  r='2'>" +
+                                                "<c t='inlineStr' r='A2' s='2'><is><t xml:space='preserve'>Orden de Servicio:</t></is></c>" +
+                                                "<c t='inlineStr' r='B2'      ><is><t xml:space='preserve'>"+document.getElementById("orden_servicio").textContent+"</t></is></c>" +
+                                        "</row>";
+
+                                    const terceraFila = "<row  r='3'>" +
+                                                "<c t='inlineStr' r='A3' s='2'><is><t xml:space='preserve'>Fecha Recepción:</t></is></c>" +
+                                                "<c t='inlineStr' r='B3'      ><is><t xml:space='preserve'>"+document.getElementById("fecha_recepcion").textContent+"</t></is></c>" +
+
+                                                "<c t='inlineStr' r='E3' s='2'><is><t xml:space='preserve'>Fecha Entrega:</t></is></c>" +
+                                                "<c t='inlineStr' r='F3'      ><is><t xml:space='preserve'>"+document.getElementById("fecha_entrega").textContent+"</t></is></c>" +
+                                        "</row>";
+
+                                    const cuartaFila = "<row  r='4'>" +
+                                            "<c t='inlineStr' r='A4' s='2'><is><t xml:space='preserve'>Cliente:</t></is></c>" +
+                                            "<c t='inlineStr' r='B4'      ><is><t xml:space='preserve'>"+document.getElementById("id_propietario").textContent+"</t></is></c>" +
+
+                                            "<c t='inlineStr' r='E4' s='2'><is><t xml:space='preserve'>Operario que deligenció:</t></is></c>" +
+                                            "<c t='inlineStr' r='F4'      ><is><t xml:space='preserve'>"+document.getElementById("operario").textContent+"</t></is></c>" +
+                                    "</row>";
+
+                                    contenido_ += segundaFila +terceraFila + cuartaFila;
+
+                                    let contadorColocarRow_ = 5;
+
+                                    for (let row = 2; row <= numeroFilas_; row++) {
+
+                                        // Agregando campo en la fila del excel
+                                        let targetElement_ = sheet_.childNodes[0].childNodes[1].childNodes[(row-1)];
+
+                                        targetElement_ = filaConvertirPosicion(targetElement_, contadorColocarRow_, row);
+
+                                        contenido_ += "<row r='"+contadorColocarRow_+"'>" + targetElement_.innerHTML + "</row>";
+                                        contadorColocarRow_ ++;
+                                    }
+
+                                    // Sobreescribiendo data a imprimir en el excel
+                                    sheet_.childNodes[0].childNodes[1].innerHTML = title_ + contenido_;
+
+                                break;
                                 case 'REPORTE_EXTINTOR':
                                 case 'REPORTE_CLIENTE_EXTINTOR':
                                     // Obtener la hoja de trabajo activa
@@ -175,7 +227,7 @@
                                         // Agregando campo en la fila del excel
                                         let targetElement = sheet.childNodes[0].childNodes[1].childNodes[(row-1)];
 
-                                        targetElement = filaConvertirPosicion(targetElement, contadorColocarRow);
+                                        targetElement = filaConvertirPosicion(targetElement, contadorColocarRow, row);
 
                                         contenido += "<row r='"+contadorColocarRow+"'>" + targetElement.innerHTML + "</row>";
                                         contadorColocarRow ++;
@@ -247,16 +299,14 @@
             });
         });
 
-        function filaConvertirPosicion(targetElement, spaceRowCurrent){
-
-            const spaceEntryTitleTable = 2;
+        function filaConvertirPosicion(targetElement, spaceRowCurrent, row){
 
             for (let i = 0; i < targetElement.childNodes.length; i++) {
                 let childNode = targetElement.childNodes[i];
 
                 if (childNode.nodeName === "c") {
                     let valor = childNode.getAttribute("r");
-                    childNode.setAttribute('r', valor.replace((spaceRowCurrent - spaceEntryTitleTable), spaceRowCurrent));
+                    childNode.setAttribute('r', valor.replace(row, spaceRowCurrent));
                 }
             }
 

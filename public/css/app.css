@@ -3575,10 +3575,11 @@ input[type=button].btn-block {
   border-top: 1px solid #e9ecef;
 }
 
+/*MENU*/
 .dropdown-item {
   display: block;
   width: 100%;
-  padding: 0.25rem 1.5rem;
+  padding: 2px 0 2px 0 !important;
   clear: both;
   font-weight: 400;
   color: #212529;
@@ -4412,9 +4413,10 @@ input[type=button].btn-block {
   list-style: none;
 }
 
+/*SUB MENU*/
 .nav-link {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: 0px 0 5px 0!important
 }
 
 .nav-link:hover,
@@ -4978,6 +4980,7 @@ input[type=button].btn-block {
   flex: 1 1 auto;
   min-height: 1px;
   padding: 1.25rem;
+  overflow: auto;
 }
 
 .card-title {

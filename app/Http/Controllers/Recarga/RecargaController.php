@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Recarga;
 
 use Exception;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\{Ingreso, listadoPrueba, listadoRecarga, NumeroTiquete, Recarga, UnidadMedida};
 use App\Http\Controllers\Utilities\{CambioPartesListado, ConsultaRecarga, FugaListado};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\Expr\Cast\String_;
 
 class RecargaController extends Controller
 {
@@ -144,9 +143,12 @@ class RecargaController extends Controller
                 "nro_tiquete_anterior"  => $request->nro_tiquete_anterior,
                 "usuario_recarga_id"    => Auth::user()->id, // Tecnico que realizo el procedimiento
                 "fuga_id"               => $request->fuga_id,
-                "observacion"           => $request->observacion,
+                "observacion"           => strtoupper($request->observacion),
                 "ingreso_actividad"     => 1, // Indica se ha procesado,
                 "nuevo_extintor"        => $request->nuevo_extintor,
+                'fecha_hidrostatica'    => $request->fecha_hidrostatica,
+                'n_interno_cliente'     => strtoupper($request->n_interno_cliente),
+                'n_extintor'            => strtoupper($request->n_extintor),
                 "estado"                => $request->estado
             ]);
 
@@ -177,22 +179,6 @@ class RecargaController extends Controller
             ->where('unidades_medida.sub_categoria_id', '=', $id)
             ->get();
     }
-
-    //UTLIMA MODIDICACION 2024/08/00 - REINGENIERIA RECARGAS - CRISTIAN SEGURA
-    // private function etiqueta($idRecarga, $numeroEtiqueta, $ingresoRecargaId = null)
-    // {
-    //     $actualizarEtiqueta = NumeroTiquete::where('numero_tiquete', $numeroEtiqueta)->whereNull('recarga_id')->first();
-    //     if ($actualizarEtiqueta) {
-    //         $actualizarEtiqueta->recarga_id = $idRecarga;
-    //         $actualizarEtiqueta->update();
-    //     }else{
-    //         // Si no existe es porque el numero de ticket el usuario lo ingreso manual.
-    //         $actualizarEtiqueta = NumeroTiquete::where('ingreso_id', $ingresoRecargaId)->whereNull('recarga_id')->first();
-    //         $actualizarEtiqueta->numero_tiquete = $numeroEtiqueta;
-    //         $actualizarEtiqueta->recarga_id = $idRecarga;
-    //         $actualizarEtiqueta->update();
-    //     }
-    // }
 
     /**Para obtener la informacion de la recargas que pertenecen a un ingreso */
     public function informacionListadoRecarga($id)
@@ -251,6 +237,19 @@ class RecargaController extends Controller
                 ->get();
 
             $data = $this->consultandoRecarga($id_recarga);
+
+            $data->fecha_hidrostatica_anterior = "SIN REGISTRAR";
+            // Consultando Ultima Fecha Hidrostática realizada
+            if ($data->nro_tiquete_anterior != null) {
+                $recargaAnterior = Recarga::select('fecha_hidrostatica')->where('nro_tiquete_nuevo', $data->nro_tiquete_anterior)->first();
+                $data->fecha_hidrostatica_anterior = $recargaAnterior->fecha_hidrostatica ?? '1900-01-01';
+
+                if ($data->fecha_hidrostatica_anterior == '1900-01-01') {
+                    $data->fecha_hidrostatica_anterior = "SIN REGISTRAR";
+                }else{
+                    $data->fecha_hidrostatica_anterior = Carbon::parse($data->fecha_hidrostatica_anterior)->translatedFormat('F \d\e Y');
+                }
+            }
 
             return response()->json([
                 "data"          => $data,

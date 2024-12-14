@@ -20,7 +20,7 @@ class FugaController extends Controller
             $data = Fuga::create($request->all());
             return back()->with('exito', 'Se completo el registro');
         } catch (\Throwable $th) {
-            return back()->with('errors', 'No se pudo completar el registro');
+            return back()->with('error', 'No se pudo completar el registro');
         }
     }
     public function update(FugaCreateRequest $request, $id)
@@ -32,7 +32,7 @@ class FugaController extends Controller
             $prueba->update();
             return redirect('fuga')->with('exito', 'Se actualizo con exito el regristro');
         } catch (\Throwable $th) {
-            return back()->with('errors', 'No se puedo completar este evento');
+            return back()->with('error', 'No se puedo completar este evento');
         }
     }
     public function destroy($id)

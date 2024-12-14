@@ -182,6 +182,14 @@ class IngresoController extends Controller
 
                 // Recorriendo la cantidad de cada item ingresado
                 for ($nCantExt=0; $nCantExt < $request->input('cantidad_medida_'. $nItem); $nCantExt++) {
+
+                    $recargaAnterior = null;
+                    if ($request->input('nro_tiquete_anterior_'. $nItem) != null) {
+                        $recargaAnterior = Recarga::select('n_extintor')
+                            ->where('nro_tiquete_nuevo', $request->input('nro_tiquete_anterior_'. $nItem))
+                            ->first();
+                    }
+
                     // Aquí se crea por cada extintor una etiqueta nueva, para reservar en el sistema etiquetas para esa orden
                     $recarga = Recarga::create([
                         'nro_tiquete_anterior'  => $request->input('nro_tiquete_anterior_'. $nItem) ?? null,
@@ -192,7 +200,10 @@ class IngresoController extends Controller
                         'usuario_recarga_id'    => $ingreso->usuario_id,
                         'ingreso_recarga_id'    => $ingreso->id,
                         'activida_recarga_id'   => $request->input('actividad_id_'. $nItem),
-                        'ingreso_actividad'     => 0
+                        'ingreso_actividad'     => 0,
+                        'fecha_hidrostatica'    => '1900-01-01',
+                        'n_interno_cliente'     => '',
+                        'n_extintor'            => $recargaAnterior['n_extintor'] ?? ''
                     ]);
 
                     // la actividad es nuevo codigo 3 guardamos en cambio de partes del extintor configuracion por defecto

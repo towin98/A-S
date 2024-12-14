@@ -1,39 +1,63 @@
-@extends('layouts.app', ['activePage' => 'reportes', 'titlePage' => __('Reporte Extintor')])
+@extends('layouts.app', ['activePage' => 'reportes', 'titlePage' => __('Reporte de producción por Orden')])
 
 @section('content')
-<div class="content">
-    <div class="container-fluid">
-        <div class="col">
-            <div class="container">
-                <div class="card">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col">
+                <div class="container">
+                    <div class="card">
 
-                    <div class="card-header card-header-text card-header-warning">
-                        <div class="card-text">
-                            <h4 class="card-title">{{ __('Buscar Extintor') }}</h4>
-                        </div>
-                        <div class="form-group mt-4">
-                            <label class="px-2" for="id_etiqueta_extintor">{{ __('Etiqueta extintor') }}</label>
-                            <div class="d-flex align-items-center">
-                                <div class="px-2 w-100">
-                                    <input type="text" placeholder="Ingrese Etiqueta extintor" class="form-control" id="id_etiqueta_extintor" name="etiqueta_extintor" required>
-                                </div>
-                                <div class="ml-auto px-2">
-                                    <button type="button" id="id_buscar_etiqueta_extintor" class="btn btn-success">Buscar</button>
+                        <div class="card-header card-header-text card-header-warning" style="color: black">
+                            <div class="card-text">
+                                <h4 class="card-title">{{ __('Buscar Orden de Producción') }}</h4>
+                            </div>
+                            <div class="form-group">
+                                <label class="px-2" for="id_orden_servicio">{{ __('Reporte de producción por Orden') }}</label>
+                                <div class="d-flex">
+                                    <div class="px-2 w-100">
+                                        <input type="text" placeholder="Ingrese Orden de Servicio" class="form-control" id="id_orden_servicio" name="orden_servicio" required>
+                                    </div>
+                                    <div class="ml-auto px-2">
+                                        <button type="button" id="id_buscar_orden_servicio" class="btn btn-success mt-0">Buscar</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <label class="px-2 d-flex"><b>Propietario:</b><div id="id_propietario"></div></label>
-                        <div id="id_origen" class="d-none">REPORTE_EXTINTOR</div>
+                        <div class="card-body pt-0">
 
-                        <div class="card-body">
+                            <div class="row pb-2" style="font-family: 'Roboto'">
+                                <div class="col-12 text-center"><strong>ORDEN DE PRODUCCION (ENSAMBLE, MANTENIMIENTO Y/0 RECARGA)</strong></div>
+                                <div class="col-12 d-flex">
+                                    <strong>Orden de Servicio:</strong> <div id="orden_servicio" class="pl-1"> </div>
+                                </div>
+                                <div class="col-12 col-lg-6 d-flex">
+                                    <strong>Fecha Recepción:</strong> <div id="fecha_recepcion" class="pl-1"></div>
+                                </div>
+                                <div class="col-12 col-lg-6 d-flex">
+                                    <strong>Fecha Entrega:</strong> <div id="fecha_entrega" class="pl-1"></div>
+                                </div>
+                                <div class="col-12 col-lg-6 d-flex">
+                                    <strong>Cliente:</strong><div id="id_propietario" class="pl-1"></div>
+                                </div>
+                                <div class="col-12 col-lg-6 d-flex">
+                                    <strong>Operario que deligenció:</strong> <div id="operario" class="pl-1"></div>
+                                </div>
+                            </div>
+                            <div id="id_origen" class="d-none">REPORTE_PRODUCCION_ORDEN</div>
+
                             <table class="table" id="example" style="display: block; overflow-x: auto; white-space: nowrap; width: 100%">
                                 <thead>
                                     <tr class="text-left">
                                         <th style="padding: 0 38px 0 5px !important;">{{ __('#') }}</th>
                                         <th style="padding: 0 38px 0 5px !important;" title="N° Etiqueta Anterior">{{ __('N° E. Anterior') }}</th>
                                         <th style="padding: 0 38px 0 5px !important;" title="N° Etiqueta Nueva">{{ __('N° E. Nueva') }}</th>
-                                        <th style="padding: 0 38px 0 5px !important;">{{ __('Orden Servicio') }}</th>
+
+                                        {{-- ESTAS DOS COLUMNAS SON DOS CAMPOS NUEVOS --}}
+                                        <th style="padding: 0 38px 0 5px !important;" title="N° Extintor">{{ __('N° Extintor') }}</th>
+                                        <th style="padding: 0 38px 0 5px !important;" title="N° Interno Cliente">{{ __('N° Interno Cliente') }}</th>
+                                        <th style="padding: 0 38px 0 5px !important;" title="Fecha Hidrostatica">{{ __('Fecha Hidrostatica') }}</th>
+
                                         <th style="padding: 0 38px 0 5px !important;">{{ __('Agente') }}</th>
                                         <th style="padding: 0 38px 0 5px !important;" title="Capacidad Producto">{{ __('Capacidad P.') }}</th>
                                         <th style="padding: 0 38px 0 5px !important;" title="Unidad Medida">{{ __('Unidad M.') }}</th>
@@ -63,10 +87,9 @@
                                         <th style="padding: 0 38px 0 5px !important;" title="A M - En el Acople de la manguera">{{ __('A M') }}</th>
                                         <th style="padding: 0 38px 0 5px !important;" title="N/A - No Aplica">{{ __('N/A') }}</th>
 
-                                        <th style="padding: 0 38px 0 5px !important;">{{ __('Fecha Recarga') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbody_reporte_extintor">
+                                <tbody id="tbody">
                                 </tbody>
                             </table>
                         </div>
@@ -75,6 +98,5 @@
             </div>
         </div>
     </div>
-</div>
-<script src="{{ asset('js/reportes/extintores.js') }}"></script>
+    <script src="{{ asset('js/reportes/ordenProduccion.js') }}"></script>
 @endsection

@@ -94,6 +94,11 @@
                         <i class="material-icons">search</i>
                         <p>{{ __('Orden Servicio') }}</p>
                     </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url('reporte/orden-produccion') }}">
+                        <i class="material-icons">search</i>
+                        <p>{{ __('Orden Producción') }}</p>
+                    </a>
                 </div>
             </li>
 
@@ -133,7 +138,6 @@
                     </p>
                 </a>
                 <div class="dropdown-menu">
-                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('encargado') }}">
                         <i class="material-icons">supervisor_account</i>
                         <p>{{ __('Cliente') }}</p>

@@ -23,16 +23,18 @@ class FugaCreateRequest extends FormRequest
      */
     public function rules()
     {
+        $id = $this->route('id'); // 'fuga' es el nombre del parámetro en tu ruta
+
         return [
-            'nombre_fuga' => 'required|min:5|unique:fugas,nombre_fuga,',
-            'abreviacion_fuga' => 'required|min:1|unique:fugas,abreviacion_fuga,',
+            'nombre_fuga' => "required|min:2|unique:fugas,nombre_fuga,$id",
+            'abreviacion_fuga' => "required|min:1|unique:fugas,abreviacion_fuga,$id",
         ];
     }
     public function messages()
     {
         return [
             'nombre_fuga.required' => 'Ingresa nombre de la fuga',
-            'nombre_fuga.min' => 'El nombre de la fuga  debe contener más de 5 caracteres',
+            'nombre_fuga.min' => 'El nombre de la fuga  debe contener más de 2 caracteres',
             'nombre_fuga.unique' => 'El nombre de la fuga debe ser unico',
 
             'abreviacion_fuga.required' => 'Ingresa nombre de la abreviacion',

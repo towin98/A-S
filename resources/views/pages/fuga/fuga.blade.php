@@ -13,33 +13,21 @@
                         window.alert('{{ session('exito') }}');
                     </script>
                     @endif
+
                     @if (session('error'))
                     <div class="alert alert-danger" role="alert">
                         {{ session('error') }}
                     </div>
                     @endif
+
                     @if ($errors->any())
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                        <div class="alert alert-danger" role="alert">
-                            <li>{{ $error }}</li>
-                        </div>
-                        @endforeach
-                    </ul>
-                    @endif
-                    @if (session('error'))
-                        <div class="alert alert-danger" role="alert">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-                    @if ($errors->any())
-                        <ul>
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0">
                             @foreach ($errors->all() as $error)
-                                <div class="alert alert-danger" role="alert">
                                     <li>{{ $error }}</li>
-                                </div>
-                            @endforeach
-                        </ul>
+                                    @endforeach
+                                </ul>
+                        </div>
                     @endif
                     <div class="card">
                         <div class="card-header card-header-text card-header-warning">
@@ -91,25 +79,16 @@
                                                                         {{ csrf_field() }}
                                                                         {{ method_field('PUT') }}
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                for="nombre_fuga">{{ __('Nombre Prueba') }}</label>
-                                                                            <input type="text" class="form-control"
-                                                                                id="nombre_fuga" required name="nombre_fuga"
-                                                                                value="{{ $item->nombre_fuga }}">
+                                                                            <label for="nombre_fuga">{{ __('Nombre Prueba') }}</label>
+                                                                            <input type="text" class="form-control" id="nombre_fuga" required name="nombre_fuga" value="{{ $item->nombre_fuga }}">
                                                                         </div>
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                for="abreviacion_fuga">{{ __('Abreviacion') }}</label>
-                                                                            <input type="text" class="form-control"
-                                                                                id="abreviacion_fuga" required
-                                                                                name="abreviacion_fuga"
-                                                                                value="{{ $item->abreviacion_fuga }}">
+                                                                            <label for="abreviacion_fuga">{{ __('Abreviacion') }}</label>
+                                                                            <input type="text" class="form-control" id="abreviacion_fuga" required name="abreviacion_fuga" value="{{ $item->abreviacion_fuga }}">
                                                                         </div>
                                                                         <div class="modal-footer">
-                                                                            <button
-                                                                                class="btn btn-primary">{{ __('Enviar') }}</button>
-                                                                            <button type="button" class="btn btn-secondary"
-                                                                                data-dismiss="modal">Close</button>
+                                                                            <button class="btn btn-primary">{{ __('Enviar') }}</button>
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -151,13 +130,11 @@
                                 {{ csrf_field() }}
                                 <div class="form-group">
                                     <label for="nombre_fuga">{{ __('Nombre Fuga') }} <span style="color: red">*</span></label>
-                                    <input type="text" class="form-control" id="nombre_fuga" required
-                                        name="nombre_fuga">
+                                    <input type="text" class="form-control" id="nombre_fuga" name="nombre_fuga" value="" required >
                                 </div>
                                 <div class="form-group">
                                     <label for="abreviacion_fuga">{{ __('Abreviacion') }} <span style="color: red">*</span></label>
-                                    <input type="text" class="form-control" id="abreviacion_fuga" required
-                                        name="abreviacion_fuga">
+                                    <input type="text" class="form-control" id="abreviacion_fuga" name="abreviacion_fuga" value="" required>
                                 </div>
                                 <button class="btn btn-warning">{{ __('Enviar') }}</button>
                             </form>

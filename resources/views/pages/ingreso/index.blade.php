@@ -1,8 +1,4 @@
 @extends('layouts.app', ['activePage' => 'ingreso', 'titlePage' => __('Nuevo Ingreso')])
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-<script></script>
 @section('content')
     <div class="content">
         <div class="container-fluid">
@@ -238,9 +234,9 @@
                 event.preventDefault();
                 if (event.target.value !== '') {
 
-                    const item = event.target.dataset.itemtiqueteanterior;
-                    const nameCampo = nameCampo+item;
-                    const nameCampoReferencia = nameCampoReferencia+item;
+                    let itemNew = event.target.dataset.itemtiqueteanterior;
+                    let nameCampoNew = nameCampo+itemNew;
+                    let nameCampoReferenciaNew = nameCampoReferencia+itemNew;
 
                     document.getElementById("loading-overlay").style.display = "flex";
                     const etiquetaAnterior = event.target.value;
@@ -280,7 +276,7 @@
                                 $('#encargado').selectpicker('refresh');
 
                                 // Asignar el valor y disparar el evento 'change' de forma asincrónica
-                                await setValueAndTriggerChange(nameCampo, datos?.unidad_medida?.sub_categoria_id);
+                                await setValueAndTriggerChange(nameCampoNew, datos?.unidad_medida?.sub_categoria_id);
                                 const data = [
                                     {
                                         id: datos?.unidad_medida?.id,
@@ -289,11 +285,11 @@
                                     }
                                 ];
 
-                                await addOptionsToSelect(`unidad_medida_id_${item}`, data, 'UNIDADMEDIDA');
-                                $(`#${nameCampoReferencia}`).val(datos?.unidad_medida?.id);
+                                await addOptionsToSelect(`unidad_medida_id_${itemNew}`, data, 'UNIDADMEDIDA');
+                                $(`#${nameCampoReferenciaNew}`).val(datos?.unidad_medida?.id);
 
-                                $(`#cantidad_medida_${item}`).val("1");
-                                $(`#cantidad_medida_${item}`).prop('readonly', true);
+                                $(`#cantidad_medida_${itemNew}`).val("1");
+                                $(`#cantidad_medida_${itemNew}`).prop('readonly', true);
                             }
 
                             document.getElementById("loading-overlay").style.display = "none";
@@ -364,7 +360,7 @@
 
                 <div class='form-group col-12 col-lg-1'>
                     <label for='cantidad_medida_${item}'>Cant</label>
-                    <input type='number' class='form-control' id='cantidad_medida_${item}' value='1' name='cantidad_medida_${item}' onkeydown='preventEnter(event)' onkeyup='sumarValores()' required>
+                    <input type='number' class='form-control' id='cantidad_medida_${item}' value='1' name='cantidad_medida_${item}' onkeydown='preventEnter(event)' onchange='sumarValores()' required>
                 </div>
 
                 <div class='col-12 col-lg-1 d-flex align-items-center justify-content-end'>
@@ -487,7 +483,10 @@
             let total = 0;
             // Recorro todos los inputs con ID que comienzan con 'cantidad_medida_' y sumo sus valores a total.
             inputs.forEach(input => {
-                const value = parseFloat(input.value) || 0;
+                let value = parseFloat(input.value) || 0;
+                if (value < 1) {
+                    value = 1;
+                }
                 input.value = value;
                 total += value;
             });

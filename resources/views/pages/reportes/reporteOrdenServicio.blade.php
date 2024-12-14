@@ -34,9 +34,9 @@
 
                             <div class="card mt-2" id="imprimir">
 
-
                                 <div class="card-body" style="background: #ff7878; border-radius: 8px 8px 0px 0px;">
                                     <h5 class="card-title text-center font-weight-bold text-white" style="font-size: x-large; margin: 0px 0px 0px 0px; ">A & S</h5>
+                                    <div class="text-center text-white">PEDIDO - RECEPCION DE EXTINTORES</div>
                                 </div>
 
                                 <div class="card-body">
@@ -97,7 +97,7 @@
 
                                     <div class="d-flex justify-content-end">
                                         <strong style="padding-top: 10px;">Total Extintores: &nbsp;&nbsp;&nbsp;</strong>
-                                        <input type="text" id="id_total_extintores" style="width: 100px;" class="form-control" disabled>
+                                        <input type="text" id="id_total_extintores" style="width: 100px;" class="form-control limpiarCampos" disabled>
                                     </div>
 
                                 </div>
